@@ -174,3 +174,5 @@ ggplot(counts, aes(x = factor(diabetes), y = N)) +
   theme(plot.title = element_text(hjust = 0.5))
 
 ```
+
+Visually it can be seen that the data is **greatly imbalanced**.
