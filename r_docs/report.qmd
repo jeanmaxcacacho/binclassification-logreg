@@ -53,7 +53,7 @@ print(null_counts)
 ```
 The result of the previous cell shows that all rows have complete data.
 
-### Value Conversions
+## Value Conversions
 Part of data pre-processing is also ensuring that observations are stored in programmatically convenient formats. In the context of R an example of this would be storing categorical/discrete data as `factor`s.
 
 `str(raw_df)` can be used to inspect how these values are stored in the dataframe.
@@ -71,10 +71,32 @@ print(unique_vals)
 ```
 It can be seen that the attributes: hypertension, heart_disease, and diabetes, already only have two possible values; gender and smoking_history however do not.
 
-### Handling "other" `gender` Attribute
+### Handling `gender` Attribute
 *Surface level research* shows that individuals with non-binary gender identities show higher incidence rates for other diabetes related comorbidities, e.g. smoking [(Tan et. al. 2021)](https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/#:~:text=Transgender%20and%20gender%2Dexpansive%20(TGE)%20adults%E2%80%94individuals%20who%20have,to%20smoke%20cigarettes%20than%20cisgender%20individuals%20[3].). This suggests that gender identities beyond just male and female may provide the model with sufficient information, along with other features, for classification.
 
-### Handling All `smoking_history` Values
+| gender | description                          | encoding |
+|------------------|--------------------------------------|----------:|
+| Male            | Individual whose sex is Male                  |         0 |
+| Female           | Individual whose sex is Female                  |         1 |
+| Other      | Individual with non-binary gender identity       |         2 |
+
+These encodings serve only to be labels that are programmatically convenient to work with in processing.
+```{r}
+gender_encodings = c(
+  "Male" = 0,
+  "Female" = 1,
+  "Other" = 2
+)
+
+raw_df[, gender_code := gender_encodings[gender]]
+print(raw_df)
+```
+It can be seen that `gender` has been successfully encoded into `gender_code`. As such, the original column can now be discarded.
+```{r}
+raw_df[, gender := NULL]
+print(raw_df)
+```
+### Handling `smoking_history` Attribute
 The earlier cell that was supposed to detect and count for null values was not able to catch `smoking_history` observations marked with `No Info`. That was because the previous function looked for values stored in R as `NA` or as empty strings. Including these observations may just be *noise* for the classifier, as such observations with `No Info` in `smoking_history` are discarded.
 ```{r}
 row_count_before <- raw_df[, .N] # row count before drop
@@ -86,5 +108,45 @@ unique(raw_df$smoking_history)
 row_count_after <- raw_df[, .N] # row count after drop
 print(paste("Row count after drop: ", row_count_after))
 ```
+To turn the remaining string values into meaningful numerical data, **ordinal encoding comes to mind.** Notice how the magnitude of `smoking_history` can be surmised from the current values; those who have never smoked have, by definition, smoked less than those who were former smokers. Through the same intuition, it can be said that current smokers smoke the most. Formal definitions for these terms can be obtained from [online medical sources](https://www.cdc.gov/mmwr/volumes/72/wr/mm7210a7.htm).
 
+From this information these encodings were generated:
+
+| smoking_history | description                          | encoding |
+|------------------|--------------------------------------|----------:|
+| never            | never smoked before, or has smoked less than 100 cigarettes in their lifetime                  |         0 |
+| former           | smoked at least 100 cigarettes in their lifetime but does not currently smoke                  |         1 |
+| not current      | smoked at least 100 cigarettes in their lifetime but does not currently smoke       |         1 |
+| ever             | term encompassing both current and former smokers, anyone who has smoked at least 100 cigarettes in their lifetime     |         1 |
+| current          | smoked at least 100 cigarettes in their lifetime and currently smokes                        |         2 |
+
+It must be noted that in the context of this project, the terms `former`, `ever`, and `not current`, were not defined in the data card. As such, operative definitions were gleaned from the CDC *QuickStats* article hyperlinked above.
+```{r}
+smoking_encodings <- c(
+  "never" = 0,
+  "former" = 1,
+  "not current" = 1,
+  "ever" = 1,
+  "current" = 2
+)
+
+raw_df[, smoking_code := smoking_encodings[smoking_history]]
+
+print(raw_df)
+```
+It can be seen that `smoking_history` has been encoded successfully into the column smoking_code; the old column can now be safely discarded.
+```{r}
+raw_df[, smoking_history := NULL]
+
+print(raw_df)
+```
+Now that the data is clean, categorical columns can now be converted to the `factor` data type.
+```{r}
+categorical_attr2 <- c("gender_code", "hypertension", "heart_disease", "smoking_code", "diabetes")
+
+raw_df[, (categorical_attr2) := lapply(.SD, as.factor), .SDcols = categorical_attr2]
+
+# verify changes
+str(raw_df)
+```
 # Exploratory Data Analysis

@@ -203,8 +203,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>The result of the previous cell shows that all rows have complete data.</p>
 </section>
-<section id="value-conversions" class="level3">
-<h3 class="anchored" data-anchor-id="value-conversions">Value Conversions</h3>
+</section>
+<section id="value-conversions" class="level2">
+<h2 class="anchored" data-anchor-id="value-conversions">Value Conversions</h2>
 <p>Part of data pre-processing is also ensuring that observations are stored in programmatically convenient formats. In the context of R an example of this would be storing categorical/discrete data as <code>factor</code>s.</p>
 <p><code>str(raw_df)</code> can be used to inspect how these values are stored in the dataframe.</p>
 <div class="cell">
@@ -249,30 +250,274 @@ $diabetes
 </div>
 </div>
 <p>It can be seen that the attributes: hypertension, heart_disease, and diabetes, already only have two possible values; gender and smoking_history however do not.</p>
-</section>
-<section id="handling-other-gender-attribute" class="level3">
-<h3 class="anchored" data-anchor-id="handling-other-gender-attribute">Handling “other” <code>gender</code> Attribute</h3>
+<section id="handling-gender-attribute" class="level3">
+<h3 class="anchored" data-anchor-id="handling-gender-attribute">Handling <code>gender</code> Attribute</h3>
 <p><em>Surface level research</em> shows that individuals with non-binary gender identities show higher incidence rates for other diabetes related comorbidities, e.g.&nbsp;smoking <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/#:~:text=Transgender%20and%20gender%2Dexpansive%20(TGE)%20adults%E2%80%94individuals%20who%20have,to%20smoke%20cigarettes%20than%20cisgender%20individuals%20%5B3%5D.">(Tan et. al.&nbsp;2021)</a>. This suggests that gender identities beyond just male and female may provide the model with sufficient information, along with other features, for classification.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 56%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>gender</th>
+<th>description</th>
+<th style="text-align: right;">encoding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Male</td>
+<td>Individual whose sex is Male</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td>Female</td>
+<td>Individual whose sex is Female</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td>Other</td>
+<td>Individual with non-binary gender identity</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>These encodings serve only to be labels that are programmatically convenient to work with in processing.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>gender_encodings <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Male"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Female"</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Other"</span> <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>raw_df[, gender_code <span class="sc">:</span><span class="er">=</span> gender_encodings[gender]]</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        gender   age hypertension heart_disease smoking_history   bmi
+        &lt;char&gt; &lt;num&gt;        &lt;int&gt;         &lt;int&gt;          &lt;char&gt; &lt;num&gt;
+     1: Female    80            0             1           never 25.19
+     2: Female    54            0             0         No Info 27.32
+     3:   Male    28            0             0           never 27.32
+     4: Female    36            0             0         current 23.45
+     5:   Male    76            1             1         current 20.14
+    ---                                                              
+ 99996: Female    80            0             0         No Info 27.32
+ 99997: Female     2            0             0         No Info 17.37
+ 99998:   Male    66            0             0          former 27.83
+ 99999: Female    24            0             0           never 35.42
+100000: Female    57            0             0         current 22.43
+        HbA1c_level blood_glucose_level diabetes gender_code
+              &lt;num&gt;               &lt;int&gt;    &lt;int&gt;       &lt;num&gt;
+     1:         6.6                 140        0           1
+     2:         6.6                  80        0           1
+     3:         5.7                 158        0           0
+     4:         5.0                 155        0           1
+     5:         4.8                 155        0           0
+    ---                                                     
+ 99996:         6.2                  90        0           1
+ 99997:         6.5                 100        0           1
+ 99998:         5.7                 155        0           0
+ 99999:         4.0                 100        0           1
+100000:         6.6                  90        0           1</code></pre>
+</div>
+</div>
+<p>It can be seen that <code>gender</code> has been successfully encoded into <code>gender_code</code>. As such, the original column can now be discarded.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>raw_df[, gender <span class="sc">:</span><span class="er">=</span> <span class="cn">NULL</span>]</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          age hypertension heart_disease smoking_history   bmi HbA1c_level
+        &lt;num&gt;        &lt;int&gt;         &lt;int&gt;          &lt;char&gt; &lt;num&gt;       &lt;num&gt;
+     1:    80            0             1           never 25.19         6.6
+     2:    54            0             0         No Info 27.32         6.6
+     3:    28            0             0           never 27.32         5.7
+     4:    36            0             0         current 23.45         5.0
+     5:    76            1             1         current 20.14         4.8
+    ---                                                                   
+ 99996:    80            0             0         No Info 27.32         6.2
+ 99997:     2            0             0         No Info 17.37         6.5
+ 99998:    66            0             0          former 27.83         5.7
+ 99999:    24            0             0           never 35.42         4.0
+100000:    57            0             0         current 22.43         6.6
+        blood_glucose_level diabetes gender_code
+                      &lt;int&gt;    &lt;int&gt;       &lt;num&gt;
+     1:                 140        0           1
+     2:                  80        0           1
+     3:                 158        0           0
+     4:                 155        0           1
+     5:                 155        0           0
+    ---                                         
+ 99996:                  90        0           1
+ 99997:                 100        0           1
+ 99998:                 155        0           0
+ 99999:                 100        0           1
+100000:                  90        0           1</code></pre>
+</div>
+</div>
 </section>
-<section id="handling-all-smoking_history-values" class="level3">
-<h3 class="anchored" data-anchor-id="handling-all-smoking_history-values">Handling All <code>smoking_history</code> Values</h3>
+<section id="handling-smoking_history-attribute" class="level3">
+<h3 class="anchored" data-anchor-id="handling-smoking_history-attribute">Handling <code>smoking_history</code> Attribute</h3>
 <p>The earlier cell that was supposed to detect and count for null values was not able to catch <code>smoking_history</code> observations marked with <code>No Info</code>. That was because the previous function looked for values stored in R as <code>NA</code> or as empty strings. Including these observations may just be <em>noise</em> for the classifier, as such observations with <code>No Info</code> in <code>smoking_history</code> are discarded.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>row_count_before <span class="ot">&lt;-</span> raw_df[, .N] <span class="co"># row count before drop</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Row count before drop: "</span>, row_count_before))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>row_count_before <span class="ot">&lt;-</span> raw_df[, .N] <span class="co"># row count before drop</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Row count before drop: "</span>, row_count_before))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Row count before drop:  100000"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>raw_df <span class="ot">&lt;-</span> raw_df[<span class="sc">!</span>(smoking_history <span class="sc">==</span> <span class="st">"No Info"</span>)]</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(raw_df<span class="sc">$</span>smoking_history)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>raw_df <span class="ot">&lt;-</span> raw_df[<span class="sc">!</span>(smoking_history <span class="sc">==</span> <span class="st">"No Info"</span>)]</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(raw_df<span class="sc">$</span>smoking_history)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "never"       "current"     "former"      "ever"        "not current"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>row_count_after <span class="ot">&lt;-</span> raw_df[, .N] <span class="co"># row count after drop</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Row count after drop: "</span>, row_count_after))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>row_count_after <span class="ot">&lt;-</span> raw_df[, .N] <span class="co"># row count after drop</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Row count after drop: "</span>, row_count_after))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Row count after drop:  64184"</code></pre>
+</div>
+</div>
+<p>To turn the remaining string values into meaningful numerical data, <strong>ordinal encoding comes to mind.</strong> Notice how the magnitude of <code>smoking_history</code> can be surmised from the current values; those who have never smoked have, by definition, smoked less than those who were former smokers. Through the same intuition, it can be said that current smokers smoke the most. Formal definitions for these terms can be obtained from <a href="https://www.cdc.gov/mmwr/volumes/72/wr/mm7210a7.htm">online medical sources</a>.</p>
+<p>From this information these encodings were generated:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 56%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>smoking_history</th>
+<th>description</th>
+<th style="text-align: right;">encoding</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>never</td>
+<td>never smoked before, or has smoked less than 100 cigarettes in their lifetime</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td>former</td>
+<td>smoked at least 100 cigarettes in their lifetime but does not currently smoke</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td>not current</td>
+<td>smoked at least 100 cigarettes in their lifetime but does not currently smoke</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td>ever</td>
+<td>term encompassing both current and former smokers, anyone who has smoked at least 100 cigarettes in their lifetime</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td>current</td>
+<td>smoked at least 100 cigarettes in their lifetime and currently smokes</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>It must be noted that in the context of this project, the terms <code>former</code>, <code>ever</code>, and <code>not current</code>, were not defined in the data card. As such, operative definitions were gleaned from the CDC <em>QuickStats</em> article hyperlinked above.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>smoking_encodings <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"never"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"former"</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"not current"</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ever"</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"current"</span> <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>raw_df[, smoking_code <span class="sc">:</span><span class="er">=</span> smoking_encodings[smoking_history]]</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># raw_df[, smoking_history := NULL]</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         age hypertension heart_disease smoking_history   bmi HbA1c_level
+       &lt;num&gt;        &lt;int&gt;         &lt;int&gt;          &lt;char&gt; &lt;num&gt;       &lt;num&gt;
+    1:    80            0             1           never 25.19         6.6
+    2:    28            0             0           never 27.32         5.7
+    3:    36            0             0         current 23.45         5.0
+    4:    76            1             1         current 20.14         4.8
+    5:    20            0             0           never 27.32         6.6
+   ---                                                                   
+64180:    26            0             0           never 34.34         6.5
+64181:    40            0             0           never 40.69         3.5
+64182:    66            0             0          former 27.83         5.7
+64183:    24            0             0           never 35.42         4.0
+64184:    57            0             0         current 22.43         6.6
+       blood_glucose_level diabetes gender_code smoking_code
+                     &lt;int&gt;    &lt;int&gt;       &lt;num&gt;        &lt;num&gt;
+    1:                 140        0           1            0
+    2:                 158        0           0            0
+    3:                 155        0           1            2
+    4:                 155        0           0            2
+    5:                  85        0           1            0
+   ---                                                      
+64180:                 160        0           1            0
+64181:                 155        0           1            0
+64182:                 155        0           0            1
+64183:                 100        0           1            0
+64184:                  90        0           1            2</code></pre>
+</div>
+</div>
+<p>It can be seen that <code>smoking_history</code> has been encoded successfully into the column smoking_code; the old column can now be safely discarded.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>raw_df[, smoking_history <span class="sc">:</span><span class="er">=</span> <span class="cn">NULL</span>]</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         age hypertension heart_disease   bmi HbA1c_level blood_glucose_level
+       &lt;num&gt;        &lt;int&gt;         &lt;int&gt; &lt;num&gt;       &lt;num&gt;               &lt;int&gt;
+    1:    80            0             1 25.19         6.6                 140
+    2:    28            0             0 27.32         5.7                 158
+    3:    36            0             0 23.45         5.0                 155
+    4:    76            1             1 20.14         4.8                 155
+    5:    20            0             0 27.32         6.6                  85
+   ---                                                                       
+64180:    26            0             0 34.34         6.5                 160
+64181:    40            0             0 40.69         3.5                 155
+64182:    66            0             0 27.83         5.7                 155
+64183:    24            0             0 35.42         4.0                 100
+64184:    57            0             0 22.43         6.6                  90
+       diabetes gender_code smoking_code
+          &lt;int&gt;       &lt;num&gt;        &lt;num&gt;
+    1:        0           1            0
+    2:        0           0            0
+    3:        0           1            2
+    4:        0           0            2
+    5:        0           1            0
+   ---                                  
+64180:        0           1            0
+64181:        0           1            0
+64182:        0           0            1
+64183:        0           1            0
+64184:        0           1            2</code></pre>
+</div>
+</div>
+<p>Now that the data is clean, categorical columns can now be converted to the <code>factor</code> data type.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>categorical_attr2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"gender_code"</span>, <span class="st">"hypertension"</span>, <span class="st">"heart_disease"</span>, <span class="st">"smoking_code"</span>, <span class="st">"diabetes"</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>raw_df[, (categorical_attr2) <span class="sc">:</span><span class="er">=</span> <span class="fu">lapply</span>(.SD, as.factor), .SDcols <span class="ot">=</span> categorical_attr2]</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co"># verify changes</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Classes 'data.table' and 'data.frame':  64184 obs. of  9 variables:
+ $ age                : num  80 28 36 76 20 44 42 32 53 54 ...
+ $ hypertension       : Factor w/ 2 levels "0","1": 1 1 1 2 1 1 1 1 1 1 ...
+ $ heart_disease      : Factor w/ 2 levels "0","1": 2 1 1 2 1 1 1 1 1 1 ...
+ $ bmi                : num  25.2 27.3 23.4 20.1 27.3 ...
+ $ HbA1c_level        : num  6.6 5.7 5 4.8 6.6 6.5 4.8 5 6.1 6 ...
+ $ blood_glucose_level: int  140 158 155 155 85 200 145 100 85 100 ...
+ $ diabetes           : Factor w/ 2 levels "0","1": 1 1 1 1 1 2 1 1 1 1 ...
+ $ gender_code        : Factor w/ 3 levels "0","1","2": 2 1 2 1 2 2 1 2 2 2 ...
+ $ smoking_code       : Factor w/ 3 levels "0","1","2": 1 1 3 3 1 1 1 1 1 2 ...
+ - attr(*, ".internal.selfref")=&lt;externalptr&gt; </code></pre>
 </div>
 </div>
 </section>
