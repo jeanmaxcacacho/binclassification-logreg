@@ -173,19 +173,113 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 6:                  90        0</code></pre>
 </div>
 </div>
-<p><strong><em>These steps show that the dataframe was successfully read into R Studio.</em></strong></p>
+</section>
+</section>
+<section id="removing-nulls" class="level2">
+<h2 class="anchored" data-anchor-id="removing-nulls">Removing Nulls</h2>
+<p>Before further pre-processing steps (scaling, value conversion etc.), observations that aren’t <em>complete</em> will be removed. Essentially rows with missing data are to be discarded from the considered dataset.</p>
+<section id="counting-nulls-attribute" class="level3">
+<h3 class="anchored" data-anchor-id="counting-nulls-attribute">Counting Nulls / Attribute</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "gender"              "age"                 "hypertension"       
+[4] "heart_disease"       "smoking_history"     "bmi"                
+[7] "HbA1c_level"         "blood_glucose_level" "diabetes"           </code></pre>
+</div>
+</div>
+<p>From this cell it can be gathered that there are 9 attributes all in all. From the whole dataset with respect to each of these attributes, we count the amount of nulls.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>null_counts <span class="ot">&lt;-</span> raw_df[, <span class="fu">lapply</span>(.SD, <span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x) <span class="sc">|</span> <span class="fu">trimws</span>(x) <span class="sc">==</span> <span class="st">""</span>))]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(null_counts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   gender   age hypertension heart_disease smoking_history   bmi HbA1c_level
+    &lt;int&gt; &lt;int&gt;        &lt;int&gt;         &lt;int&gt;           &lt;int&gt; &lt;int&gt;       &lt;int&gt;
+1:      0     0            0             0               0     0           0
+   blood_glucose_level diabetes
+                 &lt;int&gt;    &lt;int&gt;
+1:                   0        0</code></pre>
+</div>
+</div>
+<p>The result of the previous cell shows that all rows have complete data.</p>
+</section>
+<section id="value-conversions" class="level3">
+<h3 class="anchored" data-anchor-id="value-conversions">Value Conversions</h3>
+<p>Part of data pre-processing is also ensuring that observations are stored in programmatically convenient formats. In the context of R an example of this would be storing categorical/discrete data as <code>factor</code>s.</p>
+<p><code>str(raw_df)</code> can be used to inspect how these values are stored in the dataframe.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Classes 'data.table' and 'data.frame':  100000 obs. of  9 variables:
+ $ gender             : chr  "Female" "Female" "Male" "Female" ...
+ $ age                : num  80 54 28 36 76 20 44 79 42 32 ...
+ $ hypertension       : int  0 0 0 0 1 0 0 0 0 0 ...
+ $ heart_disease      : int  1 0 0 0 1 0 0 0 0 0 ...
+ $ smoking_history    : chr  "never" "No Info" "never" "current" ...
+ $ bmi                : num  25.2 27.3 27.3 23.4 20.1 ...
+ $ HbA1c_level        : num  6.6 6.6 5.7 5 4.8 6.6 6.5 5.7 4.8 5 ...
+ $ blood_glucose_level: int  140 80 158 155 155 85 200 85 145 100 ...
+ $ diabetes           : int  0 0 0 0 0 0 1 0 0 0 ...
+ - attr(*, ".internal.selfref")=&lt;externalptr&gt; </code></pre>
+</div>
+</div>
+<p>The previous query showed that the following attributes: (i) gender, (ii) hypertension, (iii) heart_disease, (iv) smoking_history, and (v) diabetes, are categorical. However, the attribute smoking_history seems to have more than just 2 possible values.</p>
+<p>To be sure, an inspection of all unique values in these attributes ascertains whether or not the value is binary or not.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>categorical_attr <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"gender"</span>, <span class="st">"hypertension"</span>, <span class="st">"heart_disease"</span>, <span class="st">"smoking_history"</span>, <span class="st">"diabetes"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>unique_vals <span class="ot">&lt;-</span> <span class="fu">lapply</span>(raw_df[, ..categorical_attr], unique)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(unique_vals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$gender
+[1] "Female" "Male"   "Other" 
+
+$hypertension
+[1] 0 1
+
+$heart_disease
+[1] 1 0
+
+$smoking_history
+[1] "never"       "No Info"     "current"     "former"      "ever"       
+[6] "not current"
+
+$diabetes
+[1] 0 1</code></pre>
+</div>
+</div>
+<p>It can be seen that the attributes: hypertension, heart_disease, and diabetes, already only have two possible values; gender and smoking_history however do not.</p>
+</section>
+<section id="handling-other-gender-attribute" class="level3">
+<h3 class="anchored" data-anchor-id="handling-other-gender-attribute">Handling “other” <code>gender</code> Attribute</h3>
+<p><em>Surface level research</em> shows that individuals with non-binary gender identities show higher incidence rates for other diabetes related comorbidities, e.g.&nbsp;smoking <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/#:~:text=Transgender%20and%20gender%2Dexpansive%20(TGE)%20adults%E2%80%94individuals%20who%20have,to%20smoke%20cigarettes%20than%20cisgender%20individuals%20%5B3%5D.">(Tan et. al.&nbsp;2021)</a>. This suggests that gender identities beyond just male and female may provide the model with sufficient information, along with other features, for classification.</p>
+</section>
+<section id="handling-all-smoking_history-values" class="level3">
+<h3 class="anchored" data-anchor-id="handling-all-smoking_history-values">Handling All <code>smoking_history</code> Values</h3>
+<p>The earlier cell that was supposed to detect and count for null values was not able to catch <code>smoking_history</code> observations marked with <code>No Info</code>. That was because the previous function looked for values stored in R as <code>NA</code> or as empty strings. Including these observations may just be <em>noise</em> for the classifier, as such observations with <code>No Info</code> in <code>smoking_history</code> are discarded.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>row_count_before <span class="ot">&lt;-</span> raw_df[, .N] <span class="co"># row count before drop</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Row count before drop: "</span>, row_count_before))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Row count before drop:  100000"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>raw_df <span class="ot">&lt;-</span> raw_df[<span class="sc">!</span>(smoking_history <span class="sc">==</span> <span class="st">"No Info"</span>)]</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(raw_df<span class="sc">$</span>smoking_history)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "never"       "current"     "former"      "ever"        "not current"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>row_count_after <span class="ot">&lt;-</span> raw_df[, .N] <span class="co"># row count after drop</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Row count after drop: "</span>, row_count_after))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Row count after drop:  64184"</code></pre>
+</div>
+</div>
 </section>
 </section>
 </section>
 <section id="exploratory-data-analysis" class="level1">
 <h1>Exploratory Data Analysis</h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="st">"hello world"</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "hello world"</code></pre>
-</div>
-</div>
 </section>
 
 </main>

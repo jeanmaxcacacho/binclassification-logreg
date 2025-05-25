@@ -39,10 +39,52 @@ head(raw_df)
 tail(raw_df)
 ```
 
-***These steps show that the dataframe was successfully read into R Studio.***
+## Removing Nulls
+Before further pre-processing steps (scaling, value conversion etc.), observations that aren't *complete* will be removed. Essentially rows with missing data are to be discarded from the considered dataset.
+
+### Counting Nulls / Attribute
+```{r}
+colnames(raw_df)
+```
+From this cell it can be gathered that there are 9 attributes all in all. From the whole dataset with respect to each of these attributes, we count the amount of nulls.
+```{r}
+null_counts <- raw_df[, lapply(.SD, function(x) sum(is.na(x) | trimws(x) == ""))]
+print(null_counts)
+```
+The result of the previous cell shows that all rows have complete data.
+
+### Value Conversions
+Part of data pre-processing is also ensuring that observations are stored in programmatically convenient formats. In the context of R an example of this would be storing categorical/discrete data as `factor`s.
+
+`str(raw_df)` can be used to inspect how these values are stored in the dataframe.
+```{r}
+str(raw_df)
+```
+The previous query showed that the following attributes: (i) gender, (ii) hypertension, (iii) heart_disease, (iv) smoking_history, and (v) diabetes, are categorical. However, the attribute smoking_history seems to have more than just 2 possible values.
+
+To be sure, an inspection of all unique values in these attributes ascertains whether or not the value is binary or not.
+```{r}
+categorical_attr <- c("gender", "hypertension", "heart_disease", "smoking_history", "diabetes")
+
+unique_vals <- lapply(raw_df[, ..categorical_attr], unique)
+print(unique_vals)
+```
+It can be seen that the attributes: hypertension, heart_disease, and diabetes, already only have two possible values; gender and smoking_history however do not.
+
+### Handling "other" `gender` Attribute
+*Surface level research* shows that individuals with non-binary gender identities show higher incidence rates for other diabetes related comorbidities, e.g. smoking [(Tan et. al. 2021)](https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/#:~:text=Transgender%20and%20gender%2Dexpansive%20(TGE)%20adults%E2%80%94individuals%20who%20have,to%20smoke%20cigarettes%20than%20cisgender%20individuals%20[3].). This suggests that gender identities beyond just male and female may provide the model with sufficient information, along with other features, for classification.
+
+### Handling All `smoking_history` Values
+The earlier cell that was supposed to detect and count for null values was not able to catch `smoking_history` observations marked with `No Info`. That was because the previous function looked for values stored in R as `NA` or as empty strings. Including these observations may just be *noise* for the classifier, as such observations with `No Info` in `smoking_history` are discarded.
+```{r}
+row_count_before <- raw_df[, .N] # row count before drop
+print(paste("Row count before drop: ", row_count_before))
+
+raw_df <- raw_df[!(smoking_history == "No Info")]
+
+unique(raw_df$smoking_history)
+row_count_after <- raw_df[, .N] # row count after drop
+print(paste("Row count after drop: ", row_count_after))
+```
 
 # Exploratory Data Analysis
-```{r}
-x <- "hello world"
-print(x)
-```
