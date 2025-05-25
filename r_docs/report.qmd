@@ -1,0 +1,17 @@
+---
+title: "Supervised Classification of Diabetes Data"
+author: Jean Maximus C. Cacacho
+format: html
+---
+
+## Introduction
+
+The data used to perform this *report(?)* was obtained from an open-access Kaggle data repository. Accessing this data can be done through the link below:
+
+https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset
+
+The objective of this study is to perform a binary classification task with logistic regression, identifying diabetic from non-diabetic observations.
+
+```{r}
+x <- "hello world"
+print(x)
