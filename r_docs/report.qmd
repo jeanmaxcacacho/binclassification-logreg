@@ -4,14 +4,45 @@ author: Jean Maximus C. Cacacho
 format: html
 ---
 
-## Introduction
+# Introduction
 
 The data used to perform this *report(?)* was obtained from an open-access Kaggle data repository. Accessing this data can be done through the link below:
 
 https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset
 
-The objective of this study is to perform a binary classification task with logistic regression, identifying diabetic from non-diabetic observations.
+The primary objective of this study is to perform a **binary classification task with logistic regression**, identifying diabetic from non-diabetic observations. Second to this would be examining the effect of two different resampling approaches: **(i) undersampling** and **(ii) oversampling**, to the performance of the model.
 
+# Data Pre-processing
+
+To yield a performant model, it's imperative for our input data to be clean. This involves pruning observations from the original data file, scaling values, and the appropriate value conversions, among other appropriate steps that may arise.
+
+On a high level, what is done in this subsection of the *notebook(?)* are the following:
+
+1. Loading the dataset into R studio.
+2. Summary statistics informing data cleanup process.
+3. Data cleanup.
+
+## Loading Data
+In this step the `diabetes_prediction_dataset.csv` file is stored into a dataframe.
+```{r}
+library(data.table)
+raw_df <- fread("../data/diabetes_prediction_dataset.csv")
+```
+After this, the head and tail of the loaded dataframe was inspected to see if the file was read into the environment.
+
+### Head
+```{r}
+head(raw_df)
+```
+### Tail
+```{r}
+tail(raw_df)
+```
+
+***These steps show that the dataframe was successfully read into R Studio.***
+
+# Exploratory Data Analysis
 ```{r}
 x <- "hello world"
 print(x)
+```
