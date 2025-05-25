@@ -1,0 +1,12 @@
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+*.Rds
+*.csv
+*.tsv
+*.xlsx
+*.sav
+*.feather
+*.parquet
+.DS_Store
