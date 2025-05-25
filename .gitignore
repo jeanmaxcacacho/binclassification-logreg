@@ -3,7 +3,6 @@
 .Ruserdata
 .Rproj.user/
 *.Rds
-*.csv
 *.tsv
 *.xlsx
 *.sav
