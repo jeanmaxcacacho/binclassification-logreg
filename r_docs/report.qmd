@@ -150,3 +150,27 @@ raw_df[, (categorical_attr2) := lapply(.SD, as.factor), .SDcols = categorical_at
 str(raw_df)
 ```
 # Exploratory Data Analysis
+
+The goal in exploratory data analysis is discovering correlations and distributions in both dependent and independent variables. This is important as it informs the way model performance metrics are to be interpreted, if there are any fine-tuning methods to apply amongst other things.
+
+## Class Imbalances
+
+One of the biggest hurdles in classification tasks is class imbalance in the data; when there are more observations for a certain dependent variable than others then there is a class imbalance. In the context of the project the dependent variable is the `diabetes` attribute.
+
+```{r}
+library(ggplot2)
+
+class_imbalance_data <- raw_df[, .(diabetes)]
+counts <- class_imbalance_data[, .N, by=diabetes]
+
+ggplot(counts, aes(x = factor(diabetes), y = N)) + 
+  geom_bar(stat="identity", fill="steelblue") + 
+  labs(
+    title = "Target Variable Distribution",
+    x = "Diabetes (0 = Non-diabetic, 1 = Diabetic)",
+    y = "Number of Observations"
+  ) + 
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
