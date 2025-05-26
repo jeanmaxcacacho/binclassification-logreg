@@ -178,25 +178,26 @@ Visually it can be seen that the data is **greatly imbalanced**.
 
 For this subsection we consider the continuous attributes of the dataset and how they relate to the target variable.
 ```{r}
-continuous_attr <- c("age", "bmi", "HbA1c_level", "blood_glucose_level", "diabetes")
-continuous_attr2 <- c("age", "bmi", "HbA1c_level", "blood_glucose_level")
-
-continuous_attr_notarg <- raw_df[, ..continuous_attr2]
+continuous_attr <- c("age", "bmi", "HbA1c_level", "blood_glucose_level")
+continuous_attr_histdata <- raw_df[, ..continuous_attr]
 
 par(mfrow = c(2, 2))
-for (attr in continuous_attr2) {
-  hist(continuous_attr_notarg[[attr]],
+for (attr in continuous_attr) {
+  hist(continuous_attr_histdata[[attr]],
        main = paste("Histogram of", attr),
        col = "lightblue",
        xlab = attr)
 }
-par(mfrow = c(1, 1))
 ```
 
-Scatterplot matrices help explore pairwise relationships between the attributes and identify patterns and clusters.
+The correlations of these continuous data attributes is shown in the correlation matrix below:
 ```{r}
-# kekma.net
+cor_matrix <- cor(continuous_attr_histdata, use = "complete.obs")
+
+print(cor_matrix)
 ```
+
+Correlation between these variables seem very weak. No strong linear relationship can be made with any of them with each other. Given that EDA serves as the primary guide of feature selection in the project, it can be inferred that these attributes are not linearly redundant. This justifies the inclusion of all of these attributes into the feature set.
 
 ## Examination of Categorical Attributes
 
@@ -211,7 +212,6 @@ for (attr in categorical_attr3) {
           main = paste("Distribution of", attr),
           col = "lightgreen")
 }
-par(mfrow = c(1,1))
 ```
 ## Examination of All Data Attributes
 
