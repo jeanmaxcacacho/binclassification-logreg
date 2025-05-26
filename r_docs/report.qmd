@@ -149,11 +149,14 @@ raw_df[, (categorical_attr2) := lapply(.SD, as.factor), .SDcols = categorical_at
 # verify changes
 str(raw_df)
 ```
+
 # Exploratory Data Analysis
 
-The goal in exploratory data analysis is discovering correlations and distributions in both dependent and independent variables. This is important as it informs the way model performance metrics are to be interpreted, if there are any fine-tuning methods to apply amongst other things.
+The goal in exploratory data analysis is discovering correlations and distributions in both dependent and independent variables. This is important as in this project, it serves as the main guide for feature selection.
 
-## Class Imbalances
+Excluding the target, the current cleaned table has 8 attributes of which 4 are categorical (`hypertension`, `heart_disease`, `gender_code`, and `smoking_code`) and the other 4 (`age`, `bmi`, `HbA1c_level`, `blood_glucose_level`) are continuous.
+
+## Analyzing Target Distribution
 
 One of the biggest hurdles in classification tasks is class imbalance in the data; when there are more observations for a certain dependent variable than others then there is a class imbalance. In the context of the project the dependent variable is the `diabetes` attribute.
 
@@ -176,3 +179,39 @@ ggplot(counts, aes(x = factor(diabetes), y = N)) +
 ```
 
 Visually it can be seen that the data is **greatly imbalanced**.
+
+## Examination of Continuous Attributes
+
+For this subsection we consider the continuous attributes of the dataset and how they relate to the target variable.
+```{r}
+continuous_attr <- c("age", "bmi", "HbA1c_level", "blood_glucose_level", "diabetes")
+
+continuous_eda <- raw_df[, ..continuous_attr]
+print(continuous_eda)
+```
+
+## Examination of Categorical Attributes
+
+For this subsection we consider the categorical attributes of the dataset and how they relate to the target variable.
+```{r}
+categorical_attr3 <- c("hypertension", "heart_disease", "gender_code", "smoking_code", "diabetes")
+categorical_eda <- raw_df[, ..categorical_attr3]
+
+print(categorical_eda)
+```
+## Examination of All Data Attributes
+
+For this subsection we examine the interaction of the categorical and continuous data.
+```{r}
+print(raw_df)
+```
+
+# Modeling
+
+## Scaling Continuous Attributes
+
+https://www.geeksforgeeks.org/logistic-regression-and-the-feature-scaling-ensemble/
+
+An inspection of the data's continuous attributes (e.g. `age`, `bmi`, `blood_glucose_level`) makes apparent the difference in *scale* that these values have. From a numerical standpoint, measurements in `bmi` and `age` are significantly less than measurements in `blood_glucose_level`.
+
+Feature scaling ensures that all features contribute equally to the model's learning process. Numerically large features, when not scaled properly, may dominate learning over smaller-scale features; `blood_glucose_level` may, by virtue of the units it's measured in, overtake `HbA1c_level` in contribution because of the difference in their values.

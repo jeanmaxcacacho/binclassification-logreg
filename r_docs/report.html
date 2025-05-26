@@ -524,9 +524,10 @@ $diabetes
 </section>
 <section id="exploratory-data-analysis" class="level1">
 <h1>Exploratory Data Analysis</h1>
-<p>The goal in exploratory data analysis is discovering correlations and distributions in both dependent and independent variables. This is important as it informs the way model performance metrics are to be interpreted, if there are any fine-tuning methods to apply amongst other things.</p>
-<section id="class-imbalances" class="level2">
-<h2 class="anchored" data-anchor-id="class-imbalances">Class Imbalances</h2>
+<p>The goal in exploratory data analysis is discovering correlations and distributions in both dependent and independent variables. This is important as in this project, it serves as the main guide for feature selection.</p>
+<p>Excluding the target, the current cleaned table has 8 attributes of which 4 are categorical (<code>hypertension</code>, <code>heart_disease</code>, <code>gender_code</code>, and <code>smoking_code</code>) and the other 4 (<code>age</code>, <code>bmi</code>, <code>HbA1c_level</code>, <code>blood_glucose_level</code>) are continuous.</p>
+<section id="analyzing-target-distribution" class="level2">
+<h2 class="anchored" data-anchor-id="analyzing-target-distribution">Analyzing Target Distribution</h2>
 <p>One of the biggest hurdles in classification tasks is class imbalance in the data; when there are more observations for a certain dependent variable than others then there is a class imbalance. In the context of the project the dependent variable is the <code>diabetes</code> attribute.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
@@ -552,6 +553,65 @@ $diabetes
 </div>
 </div>
 <p>Visually it can be seen that the data is <strong>greatly imbalanced</strong>.</p>
+</section>
+<section id="examination-of-continuous-attributes" class="level2">
+<h2 class="anchored" data-anchor-id="examination-of-continuous-attributes">Examination of Continuous Attributes</h2>
+<p>For this subsection we consider the continuous attributes of the dataset and how they relate to the target variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>continuous_attr <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"bmi"</span>, <span class="st">"HbA1c_level"</span>, <span class="st">"blood_glucose_level"</span>, <span class="st">"diabetes"</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>continuous_eda <span class="ot">&lt;-</span> raw_df[, ..continuous_attr]</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(continuous_eda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         age   bmi HbA1c_level blood_glucose_level diabetes
+       &lt;num&gt; &lt;num&gt;       &lt;num&gt;               &lt;int&gt;   &lt;fctr&gt;
+    1:    80 25.19         6.6                 140        0
+    2:    28 27.32         5.7                 158        0
+    3:    36 23.45         5.0                 155        0
+    4:    76 20.14         4.8                 155        0
+    5:    20 27.32         6.6                  85        0
+   ---                                                     
+64180:    26 34.34         6.5                 160        0
+64181:    40 40.69         3.5                 155        0
+64182:    66 27.83         5.7                 155        0
+64183:    24 35.42         4.0                 100        0
+64184:    57 22.43         6.6                  90        0</code></pre>
+</div>
+</div>
+</section>
+<section id="examination-of-categorical-attributes" class="level2">
+<h2 class="anchored" data-anchor-id="examination-of-categorical-attributes">Examination of Categorical Attributes</h2>
+<p>For this subsection we consider the categorical attributes of the dataset and how they relate to the target variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>categorical_attr3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"hypertension"</span>, <span class="st">"heart_disease"</span>, <span class="st">"gender_code"</span>, <span class="st">"smoking_code"</span>, <span class="st">"diabetes"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>categorical_eda <span class="ot">&lt;-</span> raw_df[, ..categorical_attr3]</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(categorical_eda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       hypertension heart_disease gender_code smoking_code diabetes
+             &lt;fctr&gt;        &lt;fctr&gt;      &lt;fctr&gt;       &lt;fctr&gt;   &lt;fctr&gt;
+    1:            0             1           1            0        0
+    2:            0             0           0            0        0
+    3:            0             0           1            2        0
+    4:            1             1           0            2        0
+    5:            0             0           1            0        0
+   ---                                                             
+64180:            0             0           1            0        0
+64181:            0             0           1            0        0
+64182:            0             0           0            1        0
+64183:            0             0           1            0        0
+64184:            0             0           1            2        0</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="modeling" class="level1">
+<h1>Modeling</h1>
+<section id="scaling-continuous-attributes" class="level2">
+<h2 class="anchored" data-anchor-id="scaling-continuous-attributes">Scaling Continuous Attributes</h2>
+<p>https://www.geeksforgeeks.org/logistic-regression-and-the-feature-scaling-ensemble/</p>
+<p>An inspection of the data’s continuous attributes (e.g.&nbsp;<code>age</code>, <code>bmi</code>, <code>blood_glucose_level</code>) makes apparent the difference in <em>scale</em> that these values have. From a numerical standpoint, measurements in <code>bmi</code> and <code>age</code> are significantly less than measurements in <code>blood_glucose_level</code>.</p>
+<p>Feature scaling ensures that all features contribute equally to the model’s learning process. Numerically large features, when not scaled properly, may dominate learning over smaller-scale features; <code>blood_glucose_level</code> may, by virtue of the units it’s measured in, overtake <code>HbA1c_level</code> in contribution because of the difference in their values.</p>
 </section>
 </section>
 
