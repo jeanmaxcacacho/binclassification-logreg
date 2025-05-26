@@ -185,19 +185,34 @@ Visually it can be seen that the data is **greatly imbalanced**.
 For this subsection we consider the continuous attributes of the dataset and how they relate to the target variable.
 ```{r}
 continuous_attr <- c("age", "bmi", "HbA1c_level", "blood_glucose_level", "diabetes")
+continuous_attr2 <- c("age", "bmi", "HbA1c_level", "blood_glucose_level")
 
-continuous_eda <- raw_df[, ..continuous_attr]
-print(continuous_eda)
+continuous_attr_notarg <- raw_df[, ..continuous_attr2]
+
+par(mfrow = c(2, 2))
+for (attr in continuous_attr2) {
+  hist(continuous_attr_notarg[[attr]],
+       main = paste("Histogram of", attr),
+       col = "lightblue",
+       xlab = attr)
+}
+par(mfrow = c(1, 1))
 ```
 
 ## Examination of Categorical Attributes
 
 For this subsection we consider the categorical attributes of the dataset and how they relate to the target variable.
 ```{r}
-categorical_attr3 <- c("hypertension", "heart_disease", "gender_code", "smoking_code", "diabetes")
-categorical_eda <- raw_df[, ..categorical_attr3]
+categorical_attr3 <- c("hypertension", "heart_disease", "gender_code", "smoking_code")
+categorical_attr_notarg <- raw_df[, ..categorical_attr3]
 
-print(categorical_eda)
+par(mfrow = c(2,2))
+for (attr in categorical_attr3) {
+  barplot(table(categorical_attr_notarg[[attr]]),
+          main = paste("Distribution of", attr),
+          col = "lightgreen")
+}
+par(mfrow = c(1,1))
 ```
 ## Examination of All Data Attributes
 

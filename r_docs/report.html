@@ -559,48 +559,82 @@ $diabetes
 <p>For this subsection we consider the continuous attributes of the dataset and how they relate to the target variable.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>continuous_attr <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"bmi"</span>, <span class="st">"HbA1c_level"</span>, <span class="st">"blood_glucose_level"</span>, <span class="st">"diabetes"</span>)</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>continuous_eda <span class="ot">&lt;-</span> raw_df[, ..continuous_attr]</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(continuous_eda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         age   bmi HbA1c_level blood_glucose_level diabetes
-       &lt;num&gt; &lt;num&gt;       &lt;num&gt;               &lt;int&gt;   &lt;fctr&gt;
-    1:    80 25.19         6.6                 140        0
-    2:    28 27.32         5.7                 158        0
-    3:    36 23.45         5.0                 155        0
-    4:    76 20.14         4.8                 155        0
-    5:    20 27.32         6.6                  85        0
-   ---                                                     
-64180:    26 34.34         6.5                 160        0
-64181:    40 40.69         3.5                 155        0
-64182:    66 27.83         5.7                 155        0
-64183:    24 35.42         4.0                 100        0
-64184:    57 22.43         6.6                  90        0</code></pre>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>continuous_attr2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"bmi"</span>, <span class="st">"HbA1c_level"</span>, <span class="st">"blood_glucose_level"</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>continuous_attr_notarg <span class="ot">&lt;-</span> raw_df[, ..continuous_attr2]</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (attr <span class="cf">in</span> continuous_attr2) {</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hist</span>(continuous_attr_notarg[[attr]],</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">"Histogram of"</span>, attr),</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="st">"lightblue"</span>,</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> attr)</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="report_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
 </div>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="examination-of-categorical-attributes" class="level2">
 <h2 class="anchored" data-anchor-id="examination-of-categorical-attributes">Examination of Categorical Attributes</h2>
 <p>For this subsection we consider the categorical attributes of the dataset and how they relate to the target variable.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>categorical_attr3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"hypertension"</span>, <span class="st">"heart_disease"</span>, <span class="st">"gender_code"</span>, <span class="st">"smoking_code"</span>, <span class="st">"diabetes"</span>)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>categorical_eda <span class="ot">&lt;-</span> raw_df[, ..categorical_attr3]</span>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>categorical_attr3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"hypertension"</span>, <span class="st">"heart_disease"</span>, <span class="st">"gender_code"</span>, <span class="st">"smoking_code"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>categorical_attr_notarg <span class="ot">&lt;-</span> raw_df[, ..categorical_attr3]</span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(categorical_eda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (attr <span class="cf">in</span> categorical_attr3) {</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">barplot</span>(<span class="fu">table</span>(categorical_attr_notarg[[attr]]),</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">"Distribution of"</span>, attr),</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">col =</span> <span class="st">"lightgreen"</span>)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="report_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="examination-of-all-data-attributes" class="level2">
+<h2 class="anchored" data-anchor-id="examination-of-all-data-attributes">Examination of All Data Attributes</h2>
+<p>For this subsection we examine the interaction of the categorical and continuous data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       hypertension heart_disease gender_code smoking_code diabetes
-             &lt;fctr&gt;        &lt;fctr&gt;      &lt;fctr&gt;       &lt;fctr&gt;   &lt;fctr&gt;
-    1:            0             1           1            0        0
-    2:            0             0           0            0        0
-    3:            0             0           1            2        0
-    4:            1             1           0            2        0
-    5:            0             0           1            0        0
-   ---                                                             
-64180:            0             0           1            0        0
-64181:            0             0           1            0        0
-64182:            0             0           0            1        0
-64183:            0             0           1            0        0
-64184:            0             0           1            2        0</code></pre>
+<pre><code>         age hypertension heart_disease   bmi HbA1c_level blood_glucose_level
+       &lt;num&gt;       &lt;fctr&gt;        &lt;fctr&gt; &lt;num&gt;       &lt;num&gt;               &lt;int&gt;
+    1:    80            0             1 25.19         6.6                 140
+    2:    28            0             0 27.32         5.7                 158
+    3:    36            0             0 23.45         5.0                 155
+    4:    76            1             1 20.14         4.8                 155
+    5:    20            0             0 27.32         6.6                  85
+   ---                                                                       
+64180:    26            0             0 34.34         6.5                 160
+64181:    40            0             0 40.69         3.5                 155
+64182:    66            0             0 27.83         5.7                 155
+64183:    24            0             0 35.42         4.0                 100
+64184:    57            0             0 22.43         6.6                  90
+       diabetes gender_code smoking_code
+         &lt;fctr&gt;      &lt;fctr&gt;       &lt;fctr&gt;
+    1:        0           1            0
+    2:        0           0            0
+    3:        0           1            2
+    4:        0           0            2
+    5:        0           1            0
+   ---                                  
+64180:        0           1            0
+64181:        0           1            0
+64182:        0           0            1
+64183:        0           1            0
+64184:        0           1            2</code></pre>
 </div>
 </div>
 </section>
