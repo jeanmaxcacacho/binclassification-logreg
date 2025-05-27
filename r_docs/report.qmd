@@ -10,7 +10,7 @@ The data used to perform this *report(?)* was obtained from an open-access Kaggl
 
 https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset
 
-The primary objective of this study is to perform a **binary classification task with logistic regression**, identifying diabetic from non-diabetic observations. Second to this would be examining the effect of two different resampling approaches: **(i) undersampling** and **(ii) oversampling**, to the performance of the model.
+The primary objective of this study is to perform a **binary classification task with logistic regression**, identifying diabetic from non-diabetic observations. Second to this would be examining the effect of two different resampling approaches: **(i) undersampling with Random Undersampling** and **(ii) oversampling with Synthetic Minority Oversampling**, to the performance of the model.
 
 # Data Pre-processing
 
@@ -213,14 +213,30 @@ for (attr in categorical_attr3) {
           col = "lightgreen")
 }
 ```
-## Examination of All Data Attributes
-
-For this subsection we examine the interaction of the categorical and continuous data.
+For an analysis of these attributes the chi-square test for independence can be used to see *correlation* between the attribute and target.
 ```{r}
-print(raw_df)
+categorical_attr_wtarg <- c(categorical_attr3, "diabetes")
+categorical_eda <- raw_df[, ..categorical_attr_wtarg]
+
+# Chi-square test: Hypertension v.s. Diabetes
+chisq.test(table(categorical_eda$hypertension, categorical_eda$diabetes))
+
+# Chi-square test: Heart Disease v.s. Diabetes
+chisq.test(table(categorical_eda$heart_disease, categorical_eda$diabetes))
+
+# Chi-square test: Gender v.s. Diabetes
+chisq.test(table(categorical_eda$gender_code, categorical_eda$diabetes))
+
+# Chi-square test: Smoking v.s. Diabetes
+chisq.test(table(categorical_eda$smoking_code, categorical_eda$diabetes))
 ```
+All p-values obtained are very small (p < 2.2e-16) which provides strong evidence to reject the null-hypothesis. For the attributes `hypertension`, `heart_disease`, and `smoking_code` this is to be expected since they are known comorbidities for many diseases. However, `gender_code` also yielding low p-values suggests that gender (not sex, since non-binary identites are included) is statistically significant when analyzing diabetes distribution.
+
+All that being said, failure to reject the null hypothesis for any of the variables suggests that they should be included to the final feature set.
 
 # Modeling
+
+From EDA, through the use of correlation matrix and Chi-square tests, the final feature set was obtained. Continuous variables were not colinear with each other and all categorical variables yielded small p-values, as such all nine features from the base dataset is used in modeling.
 
 ## Scaling Continuous Attributes
 
@@ -229,3 +245,13 @@ https://www.geeksforgeeks.org/logistic-regression-and-the-feature-scaling-ensemb
 An inspection of the data's continuous attributes (e.g. `age`, `bmi`, `blood_glucose_level`) makes apparent the difference in *scale* that these values have. From a numerical standpoint, measurements in `bmi` and `age` are significantly less than measurements in `blood_glucose_level`.
 
 Feature scaling ensures that all features contribute equally to the model's learning process. Numerically large features, when not scaled properly, may dominate learning over smaller-scale features; `blood_glucose_level` may, by virtue of the units it's measured in, overtake `HbA1c_level` in contribution because of the difference in their values.
+
+`scale` performs z-score scaling, centering values around 0.
+```{r}
+raw_df$age <- scale(raw_df$age)
+raw_df$bmi <- scale(raw_df$bmi)
+raw_df$HbA1c_level <- scale(raw_df$HbA1c_level)
+raw_df$blood_glucose_level <- scale(raw_df$blood_glucose_level)
+
+print(raw_df)
+```

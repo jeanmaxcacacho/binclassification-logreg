@@ -607,12 +607,60 @@ blood_glucose_level 0.1169547 0.09484836  0.19441839          1.00000000</code><
 </div>
 </div>
 </div>
+<p>For an analysis of these attributes the chi-square test for independence can be used to see <em>correlation</em> between the attribute and target.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>categorical_attr_wtarg <span class="ot">&lt;-</span> <span class="fu">c</span>(categorical_attr3, <span class="st">"diabetes"</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>categorical_eda <span class="ot">&lt;-</span> raw_df[, ..categorical_attr_wtarg]</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># there must be a better way to do this without getting print.default....</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># print("Chi-square test: Hypertension v.s. Diabetes")</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="fu">chisq.test</span>(<span class="fu">table</span>(categorical_eda<span class="sc">$</span>hypertension, categorical_eda<span class="sc">$</span>diabetes))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test with Yates' continuity correction
+
+data:  table(categorical_eda$hypertension, categorical_eda$diabetes)
+X-squared = 2370, df = 1, p-value &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># print("Chi-square test: Heart Disease v.s. Diabetes")</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">chisq.test</span>(<span class="fu">table</span>(categorical_eda<span class="sc">$</span>heart_disease, categorical_eda<span class="sc">$</span>diabetes))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test with Yates' continuity correction
+
+data:  table(categorical_eda$heart_disease, categorical_eda$diabetes)
+X-squared = 1844.2, df = 1, p-value &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># print("Chi-square test: Gender v.s. Diabetes")</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">chisq.test</span>(<span class="fu">table</span>(categorical_eda<span class="sc">$</span>gender_code, categorical_eda<span class="sc">$</span>diabetes))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in chisq.test(table(categorical_eda$gender_code,
+categorical_eda$diabetes)): Chi-squared approximation may be incorrect</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  table(categorical_eda$gender_code, categorical_eda$diabetes)
+X-squared = 209.99, df = 2, p-value &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># print("Chi-square test: Smoking v.s. Diabetes")</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">chisq.test</span>(<span class="fu">table</span>(categorical_eda<span class="sc">$</span>smoking_code, categorical_eda<span class="sc">$</span>diabetes))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  table(categorical_eda$smoking_code, categorical_eda$diabetes)
+X-squared = 253.13, df = 2, p-value &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>All p-values obtained are very small (p &lt; 2.2e-16) which provides strong evidence to reject the null-hypothesis. For the attributes <code>hypertension</code>, <code>heart_disease</code>, and <code>smoking_code</code> this is to be expected since they are known comorbidities for many diseases. However, <code>gender_code</code> also yielding low p-values suggests that gender (not sex, since non-binary identites are included) is statistically significant when analyzing diabetes distribution.</p>
 </section>
 <section id="examination-of-all-data-attributes" class="level2">
 <h2 class="anchored" data-anchor-id="examination-of-all-data-attributes">Examination of All Data Attributes</h2>
 <p>For this subsection we examine the interaction of the categorical and continuous data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         age hypertension heart_disease   bmi HbA1c_level blood_glucose_level
        &lt;num&gt;       &lt;fctr&gt;        &lt;fctr&gt; &lt;num&gt;       &lt;num&gt;               &lt;int&gt;
