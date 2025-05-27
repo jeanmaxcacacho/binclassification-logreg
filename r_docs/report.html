@@ -67,7 +67,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="report_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="report_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="report_files/libs/bootstrap/bootstrap-428660f2d989aa45215d191e3ad83543.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="report_files/libs/bootstrap/bootstrap-1bc8a17f135ab3d594c857e9f48e611b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
@@ -105,22 +105,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>The data used to perform this <em>report(?)</em> was obtained from an open-access Kaggle data repository. Accessing this data can be done through the link below:</p>
+<p>The data used to perform this <em>study</em> was obtained from an <a href="https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset">open-access Kaggle data repository</a>. The link to the data repository is:</p>
 <p>https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset</p>
-<p>The primary objective of this study is to perform a <strong>binary classification task with logistic regression</strong>, identifying diabetic from non-diabetic observations. Second to this would be examining the effect of two different resampling approaches: <strong>(i) undersampling with Random Undersampling</strong> and <strong>(ii) oversampling with Synthetic Minority Oversampling</strong>, to the performance of the model.</p>
+<p>The primary objective of this study is to perform a <strong>binary classification task with logistic regression</strong>, identifying diabetic from non-diabetic observations. Second to this would be examining the effect of two different resampling approaches: <strong>(i) oversampling with Random Oversampling</strong> and <strong>(ii) undersampling with Random Undersampling</strong>, to the performance of the model.</p>
 </section>
 <section id="data-pre-processing" class="level1">
 <h1>Data Pre-processing</h1>
 <p>To yield a performant model, it’s imperative for our input data to be clean. This involves pruning observations from the original data file, scaling values, and the appropriate value conversions, among other appropriate steps that may arise.</p>
-<p>On a high level, what is done in this subsection of the <em>notebook(?)</em> are the following:</p>
+<p>On a high level, what is done in this subsection are the following:</p>
 <ol type="1">
 <li>Loading the dataset into R studio.</li>
-<li>Summary statistics informing data cleanup process.</li>
-<li>Data cleanup.</li>
+<li>Null checks.</li>
+<li>Encoding.</li>
 </ol>
 <section id="loading-data" class="level2">
 <h2 class="anchored" data-anchor-id="loading-data">Loading Data</h2>
-<p>In this step the <code>diabetes_prediction_dataset.csv</code> file is stored into a dataframe.</p>
+<p>In this step the <code>diabetes_prediction_dataset.csv</code> file is stored into a table.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>raw_df <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"../data/diabetes_prediction_dataset.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -177,7 +177,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="removing-nulls" class="level2">
 <h2 class="anchored" data-anchor-id="removing-nulls">Removing Nulls</h2>
-<p>Before further pre-processing steps (scaling, value conversion etc.), observations that aren’t <em>complete</em> will be removed. Essentially rows with missing data are to be discarded from the considered dataset.</p>
+<p>Before further pre-processing steps (scaling, value conversion etc.), observations that aren’t complete will be removed. Essentially rows with missing data are to be discarded from the considered dataset.</p>
 <section id="counting-nulls-attribute" class="level3">
 <h3 class="anchored" data-anchor-id="counting-nulls-attribute">Counting Nulls / Attribute</h3>
 <div class="cell">
@@ -191,7 +191,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>From this cell it can be gathered that there are 9 attributes all in all. From the whole dataset with respect to each of these attributes, we count the amount of nulls.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>null_counts <span class="ot">&lt;-</span> raw_df[, <span class="fu">lapply</span>(.SD, <span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x) <span class="sc">|</span> <span class="fu">trimws</span>(x) <span class="sc">==</span> <span class="st">""</span>))]</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(null_counts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>null_counts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   gender   age hypertension heart_disease smoking_history   bmi HbA1c_level
     &lt;int&gt; &lt;int&gt;        &lt;int&gt;         &lt;int&gt;           &lt;int&gt; &lt;int&gt;       &lt;int&gt;
@@ -204,10 +204,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The result of the previous cell shows that all rows have complete data.</p>
 </section>
 </section>
-<section id="value-conversions" class="level2">
-<h2 class="anchored" data-anchor-id="value-conversions">Value Conversions</h2>
-<p>Part of data pre-processing is also ensuring that observations are stored in programmatically convenient formats. In the context of R an example of this would be storing categorical/discrete data as <code>factor</code>s.</p>
-<p><code>str(raw_df)</code> can be used to inspect how these values are stored in the dataframe.</p>
+<section id="type-conversions" class="level2">
+<h2 class="anchored" data-anchor-id="type-conversions">Type Conversions</h2>
+<p>Part of data pre-processing is also ensuring that observations are stored in programmatically convenient formats. <a href="https://www.youtube.com/watch?v=C4N3_XJJ-jU">In the context of R an example of this would be storing categorical data as factors</a>.</p>
+<p><code>str(raw_df)</code> can be used to inspect how these values are stored in the table.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -252,7 +252,7 @@ $diabetes
 <p>It can be seen that the attributes: hypertension, heart_disease, and diabetes, already only have two possible values; gender and smoking_history however do not.</p>
 <section id="handling-gender-attribute" class="level3">
 <h3 class="anchored" data-anchor-id="handling-gender-attribute">Handling <code>gender</code> Attribute</h3>
-<p><em>Surface level research</em> shows that individuals with non-binary gender identities show higher incidence rates for other diabetes related comorbidities, e.g.&nbsp;smoking <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/#:~:text=Transgender%20and%20gender%2Dexpansive%20(TGE)%20adults%E2%80%94individuals%20who%20have,to%20smoke%20cigarettes%20than%20cisgender%20individuals%20%5B3%5D.">(Tan et. al.&nbsp;2021)</a>. This suggests that gender identities beyond just male and female may provide the model with sufficient information, along with other features, for classification.</p>
+<p>Surface level research shows that individuals with non-binary gender identities show higher incidence rates for other diabetes related comorbidities, e.g.&nbsp;smoking <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/#:~:text=Transgender%20and%20gender%2Dexpansive%20(TGE)%20adults%E2%80%94individuals%20who%20have,to%20smoke%20cigarettes%20than%20cisgender%20individuals%20%5B3%5D.">(Tan et. al.&nbsp;2021)</a>. This suggests that gender identities beyond just male and female may provide the model with sufficient information, along with other features, for classification.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 26%">
@@ -660,7 +660,7 @@ X-squared = 253.13, df = 2, p-value &lt; 2.2e-16</code></pre>
 <section id="modeling" class="level1">
 <h1>Modeling</h1>
 <p>From EDA, through the use of correlation matrix and Chi-square tests, the final feature set was obtained. Continuous variables were not colinear with each other and all categorical variables yielded small p-values, as such all nine features from the base dataset is used in modeling.</p>
-<p>In this section logistic regression is run three times: (i) without resampling, (ii) resampling with SMOTE, and (iii) resampling with RUS. The target data distribution is heavily imbalanced, making the dataset a good candidate for analyzing performance contributions/effects of resampling techniques.</p>
+<p>In this section logistic regression is run three times: (i) without resampling, (ii) resampling with ROS, and (iii) resampling with RUS. The target data distribution is heavily imbalanced, making the dataset a good candidate for analyzing performance contributions/effects of resampling techniques.</p>
 <section id="scaling-continuous-attributes" class="level2">
 <h2 class="anchored" data-anchor-id="scaling-continuous-attributes">Scaling Continuous Attributes</h2>
 <p>https://www.geeksforgeeks.org/logistic-regression-and-the-feature-scaling-ensemble/</p>
@@ -673,21 +673,16 @@ X-squared = 253.13, df = 2, p-value &lt; 2.2e-16</code></pre>
 <span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>raw_df<span class="sc">$</span>HbA1c_level <span class="ot">&lt;-</span> <span class="fu">scale</span>(raw_df<span class="sc">$</span>HbA1c_level)</span>
 <span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>raw_df<span class="sc">$</span>blood_glucose_level <span class="ot">&lt;-</span> <span class="fu">scale</span>(raw_df<span class="sc">$</span>blood_glucose_level)</span>
 <span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(raw_df[, ..continuous_attr])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw_df[, ..continuous_attr])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>              age         bmi HbA1c_level blood_glucose_level
-            &lt;num&gt;       &lt;num&gt;       &lt;num&gt;               &lt;num&gt;
-    1:  1.7121451 -0.49632000   0.9454139         0.008816956
-    2: -0.9490171 -0.16944234   0.1238857         0.435702151
-    3: -0.5396076 -0.76334683  -0.5150807         0.364554618
-    4:  1.5074403 -1.27131166  -0.6976425         0.364554618
-    5: -1.3584267 -0.16944234   0.9454139        -1.295554474
-   ---                                                       
-64180: -1.0513695  0.90787279   0.8541330         0.483133839
-64181: -0.3349028  1.88236724  -1.8842944         0.364554618
-64182:  0.9956784 -0.09117585   0.1238857         0.364554618
-64183: -1.1537219  1.07361358  -1.4278898        -0.939816812
-64184:  0.5350926 -0.91987980   0.9454139        -1.176975254</code></pre>
+<pre><code>          age        bmi HbA1c_level blood_glucose_level
+        &lt;num&gt;      &lt;num&gt;       &lt;num&gt;               &lt;num&gt;
+1:  1.7121451 -0.4963200   0.9454139         0.008816956
+2: -0.9490171 -0.1694423   0.1238857         0.435702151
+3: -0.5396076 -0.7633468  -0.5150807         0.364554618
+4:  1.5074403 -1.2713117  -0.6976425         0.364554618
+5: -1.3584267 -0.1694423   0.9454139        -1.295554474
+6: -0.1301980 -1.3986865   0.8541330         1.431767606</code></pre>
 </div>
 </div>
 </section>
@@ -695,126 +690,33 @@ X-squared = 253.13, df = 2, p-value &lt; 2.2e-16</code></pre>
 <h2 class="anchored" data-anchor-id="logistic-regression-without-resampling">Logistic Regression without Resampling</h2>
 <p>In this subsection, logistic regression is performed and evaluated for accuracy without resampling.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>for_baseline <span class="ot">&lt;-</span> <span class="fu">copy</span>(raw_df)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(for_baseline)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>              age hypertension heart_disease         bmi HbA1c_level
-            &lt;num&gt;       &lt;fctr&gt;        &lt;fctr&gt;       &lt;num&gt;       &lt;num&gt;
-    1:  1.7121451            0             1 -0.49632000   0.9454139
-    2: -0.9490171            0             0 -0.16944234   0.1238857
-    3: -0.5396076            0             0 -0.76334683  -0.5150807
-    4:  1.5074403            1             1 -1.27131166  -0.6976425
-    5: -1.3584267            0             0 -0.16944234   0.9454139
-   ---                                                              
-64180: -1.0513695            0             0  0.90787279   0.8541330
-64181: -0.3349028            0             0  1.88236724  -1.8842944
-64182:  0.9956784            0             0 -0.09117585   0.1238857
-64183: -1.1537219            0             0  1.07361358  -1.4278898
-64184:  0.5350926            0             0 -0.91987980   0.9454139
-       blood_glucose_level diabetes gender_code smoking_code
-                     &lt;num&gt;   &lt;fctr&gt;      &lt;fctr&gt;       &lt;fctr&gt;
-    1:         0.008816956        0           1            0
-    2:         0.435702151        0           0            0
-    3:         0.364554618        0           1            2
-    4:         0.364554618        0           0            2
-    5:        -1.295554474        0           1            0
-   ---                                                      
-64180:         0.483133839        0           1            0
-64181:         0.364554618        0           1            0
-64182:         0.364554618        0           0            1
-64183:        -0.939816812        0           1            0
-64184:        -1.176975254        0           1            2</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>for_baseline <span class="ot">&lt;-</span> <span class="fu">copy</span>(raw_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="train-test-set-creation" class="level3">
 <h3 class="anchored" data-anchor-id="train-test-set-creation">Train &amp; Test Set Creation</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># https://rpubs.com/SameerMathur/LR_GLM_CCDefault</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="st">"123"</span>)</span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="co"># there are 60k rows so let's try 80-20</span></span>
-<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>split_baseline <span class="ot">&lt;-</span> caTools<span class="sc">::</span><span class="fu">sample.split</span>(for_baseline<span class="sc">$</span>diabetes, <span class="at">SplitRatio =</span> <span class="fl">0.8</span>)</span>
-<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>baseline_train_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
-<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>baseline_test_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">FALSE</span>)</span>
-<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_train_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>              age hypertension heart_disease        bmi HbA1c_level
-            &lt;num&gt;       &lt;fctr&gt;        &lt;fctr&gt;      &lt;num&gt;       &lt;num&gt;
-    1:  1.7121451            0             1 -0.4963200   0.9454139
-    2: -0.9490171            0             0 -0.1694423   0.1238857
-    3: -0.5396076            0             0 -0.7633468  -0.5150807
-    4: -0.1301980            0             0 -1.3986865   0.8541330
-    5: -0.2325504            0             0  0.8004482  -0.6976425
-   ---                                                             
-51343: -1.2048981            0             0 -1.6196742   0.2151666
-51344: -1.2560743            0             0  0.1881281   0.3977284
-51345: -0.3349028            0             0  1.8823672  -1.8842944
-51346: -1.1537219            0             0  1.0736136  -1.4278898
-51347:  0.5350926            0             0 -0.9198798   0.9454139
-       blood_glucose_level diabetes gender_code smoking_code
-                     &lt;num&gt;   &lt;fctr&gt;      &lt;fctr&gt;       &lt;fctr&gt;
-    1:         0.008816956        0           1            0
-    2:         0.435702151        0           0            0
-    3:         0.364554618        0           1            2
-    4:         1.431767606        1           1            0
-    5:         0.127396176        0           0            0
-   ---                                                      
-51343:        -0.939816812        0           1            0
-51344:        -1.414133695        0           0            2
-51345:         0.364554618        0           1            0
-51346:        -0.939816812        0           1            0
-51347:        -1.176975254        0           1            2</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_test_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>              age hypertension heart_disease         bmi HbA1c_level
-            &lt;num&gt;       &lt;fctr&gt;        &lt;fctr&gt;       &lt;num&gt;       &lt;num&gt;
-    1:  1.5074403            1             1 -1.27131166  -0.6976425
-    2: -1.3584267            0             0 -0.16944234   0.9454139
-    3:  0.3303878            0             0 -0.16944234   0.4890094
-    4:  1.0468546            0             0 -0.41958816   0.2151666
-    5:  1.1492070            0             0 -1.10250159  -0.6976425
-   ---                                                              
-12833:  0.2280354            0             0 -0.16944234  -1.4278898
-12834:  0.2792116            0             0 -0.16944234   0.4890094
-12835:  1.7121451            0             0  0.24797891   0.3977284
-12836: -1.0513695            0             0  0.90787279   0.8541330
-12837:  0.9956784            0             0 -0.09117585   0.1238857
-       blood_glucose_level diabetes gender_code smoking_code
-                     &lt;num&gt;   &lt;fctr&gt;      &lt;fctr&gt;       &lt;fctr&gt;
-    1:         0.364554618        0           0            2
-    2:        -1.295554474        0           1            0
-    3:        -1.295554474        0           1            0
-    4:         1.431767606        0           1            0
-    5:        -1.295554474        0           1            0
-   ---                                                      
-12833:         0.008816956        0           1            0
-12834:         0.127396176        0           1            0
-12835:        -0.323204863        0           1            0
-12836:         0.483133839        0           1            0
-12837:         0.364554618        0           0            1</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># https://rpubs.com/SameerMathur/LR_GLM_CCDefault</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="st">"123"</span>)</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="co"># there are 60k rows so let's try 80-20</span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>split_baseline <span class="ot">&lt;-</span> caTools<span class="sc">::</span><span class="fu">sample.split</span>(for_baseline<span class="sc">$</span>diabetes, <span class="at">SplitRatio =</span> <span class="fl">0.8</span>)</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>baseline_train_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>baseline_test_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="model-training" class="level3">
 <h3 class="anchored" data-anchor-id="model-training">Model Training</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>baseline_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(diabetes <span class="sc">~</span> .,</span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> baseline_train_data,</span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">family =</span> binomial)</span>
-<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(baseline_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>baseline_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(diabetes <span class="sc">~</span> .,</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> baseline_train_data,</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">family =</span> binomial)</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(baseline_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
 glm(formula = diabetes ~ ., family = binomial, data = baseline_train_data)
-
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.7527  -0.2421  -0.0863  -0.0212   3.4235  
 
 Coefficients:
                      Estimate Std. Error z value Pr(&gt;|z|)    
@@ -845,13 +747,13 @@ Number of Fisher Scoring iterations: 11</code></pre>
 <section id="making-predictions-on-baseline_test_data" class="level3">
 <h3 class="anchored" data-anchor-id="making-predictions-on-baseline_test_data">Making Predictions on <code>baseline_test_data</code></h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>baseline_test_probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(baseline_model,</span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>                               <span class="at">newdata =</span> baseline_test_data,</span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">type =</span> <span class="st">"response"</span>)</span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>baseline_test_pred <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(baseline_test_probs <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a><span class="co"># report accuracy</span></span>
-<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(baseline_test_pred <span class="sc">==</span> baseline_test_data<span class="sc">$</span>diabetes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>baseline_test_probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(baseline_model,</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>                               <span class="at">newdata =</span> baseline_test_data,</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>baseline_test_pred <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(baseline_test_probs <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a><span class="co"># report accuracy</span></span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(baseline_test_pred <span class="sc">==</span> baseline_test_data<span class="sc">$</span>diabetes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.9498325</code></pre>
 </div>
@@ -861,12 +763,14 @@ Number of Fisher Scoring iterations: 11</code></pre>
 <section id="confusion-matrix" class="level3">
 <h3 class="anchored" data-anchor-id="confusion-matrix">Confusion Matrix</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>baseline_confmatrix <span class="ot">&lt;-</span> caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(</span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(baseline_test_data<span class="sc">$</span>diabetes),</span>
-<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(baseline_test_pred)</span>
-<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_confmatrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># https://www.geeksforgeeks.org/confusion-matrix-in-r/</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>baseline_confmatrix <span class="ot">&lt;-</span> caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(baseline_test_data<span class="sc">$</span>diabetes),</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(baseline_test_pred)</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_confmatrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Confusion Matrix and Statistics
 
@@ -903,14 +807,398 @@ Prediction     0     1
 </section>
 <section id="logistic-regression-with-resampling" class="level2">
 <h2 class="anchored" data-anchor-id="logistic-regression-with-resampling">Logistic Regression with Resampling</h2>
-<p>The previous subsection showed room for improvement with the NPV of the model. One of the main challenges in classification tasks is deciding how to handle class imbalances, one of the ways this is adressed is through resampling. The resampling approaches used in this project are: <strong>(i) Oversampling with SMOTE, and (ii) Undersampling with RUS</strong>.</p>
-<section id="modeling-with-smote" class="level3">
-<h3 class="anchored" data-anchor-id="modeling-with-smote">Modeling with SMOTE</h3>
+<p>The previous subsection showed room for improvement with the NPV of the model. One of the main challenges in classification tasks is deciding how to handle class imbalances, one of the ways this is addressed is through resampling. Resampling, makes it so that the proportions in the training data is more balanced, giving the model more exposure to both targets.</p>
+<p>The resampling approaches used in this project are: <strong>(i) Oversampling with ROS, and (ii) Undersampling with RUS</strong>.</p>
+<section id="train-test-set-creation-for-ros" class="level3">
+<h3 class="anchored" data-anchor-id="train-test-set-creation-for-ros">Train &amp; Test Set Creation for ROS</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>for_ROS <span class="ot">&lt;-</span> <span class="fu">copy</span>(raw_df)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="st">"123"</span>)</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>split_ROS <span class="ot">&lt;-</span> caTools<span class="sc">::</span><span class="fu">sample.split</span>(for_ROS<span class="sc">$</span>diabetes, <span class="at">SplitRatio =</span> <span class="fl">0.8</span>)</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>ROS_train_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_ROS, split_ROS <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>ROS_test_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_ROS, split_ROS <span class="sc">==</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
-<section id="modeling-with-rus" class="level3">
-<h3 class="anchored" data-anchor-id="modeling-with-rus">Modeling with RUS</h3>
+<section id="ros-resampling" class="level3">
+<h3 class="anchored" data-anchor-id="ros-resampling">ROS Resampling</h3>
+<p>ROS works by randomly duplicating rows of the minority class, adding these dupes up until both classes have roughly the same number of instances. As such, plotting the training data before and after resampling shows the effect of ROS on the observed class imbalance.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>ROS_targcounts <span class="ot">&lt;-</span> <span class="fu">table</span>(ROS_train_data<span class="sc">$</span>diabetes)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>  ROS_targcounts,</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">names.arg =</span> <span class="fu">c</span>(<span class="st">"Non-diabetic"</span>, <span class="st">"Diabetic"</span>),</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="st">"steelblue"</span>,</span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Target Variable Distribution Before ROS"</span>,</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Classification"</span>,</span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Observation Frequency"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="report_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The distribution in the bar graph mirrors the one shown in EDA previously.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>ROS_targcounts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    0     1 
+45710  5637 </code></pre>
+</div>
+</div>
+<p>Getting an approximate ratio…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>targ_ratio <span class="ot">&lt;-</span> <span class="dv">45710</span> <span class="sc">/</span> <span class="dv">5637</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>targ_ratio</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 8.108923</code></pre>
+</div>
+</div>
+<p>The majority class outnumbers the minority class by about 8 to 1.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>ROS_output <span class="ot">&lt;-</span> ROSE<span class="sc">::</span><span class="fu">ovun.sample</span>(</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  diabetes <span class="sc">~</span> .,</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ROS_train_data,</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"over"</span>,</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">max</span>(<span class="fu">table</span>(ROS_train_data<span class="sc">$</span>diabetes))</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>ROS_train_data <span class="ot">&lt;-</span> ROS_output<span class="sc">$</span>data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The new target distribution is…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>ROS_targcounts2 <span class="ot">&lt;-</span> <span class="fu">table</span>(ROS_train_data<span class="sc">$</span>diabetes)</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>  ROS_targcounts2,</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">names.arg =</span> <span class="fu">c</span>(<span class="st">"Non-diabetic"</span>, <span class="st">"Diabetic"</span>),</span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="st">"steelblue"</span>,</span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Target Variable Distribution After ROS"</span>,</span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Classification"</span>,</span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Observation Frequency"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="report_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="model-training-on-ros-data" class="level3">
+<h3 class="anchored" data-anchor-id="model-training-on-ros-data">Model Training on ROS Data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>ROS_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(diabetes <span class="sc">~</span> .,</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> ROS_train_data,</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">family =</span> binomial)</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ROS_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = diabetes ~ ., family = binomial, data = ROS_train_data)
+
+Coefficients:
+                    Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)         -2.39419    0.02835 -84.438  &lt; 2e-16 ***
+age                  0.99691    0.01464  68.118  &lt; 2e-16 ***
+hypertension1        0.77684    0.03194  24.318  &lt; 2e-16 ***
+heart_disease1       0.85023    0.04430  19.192  &lt; 2e-16 ***
+bmi                  0.61553    0.01162  52.976  &lt; 2e-16 ***
+HbA1c_level          2.36961    0.02458  96.392  &lt; 2e-16 ***
+blood_glucose_level  1.31152    0.01462  89.686  &lt; 2e-16 ***
+gender_code1        -0.29364    0.02359 -12.448  &lt; 2e-16 ***
+gender_code2        -8.88877   61.74552  -0.144    0.886    
+smoking_code1        0.03809    0.02576   1.479    0.139    
+smoking_code2        0.15515    0.03491   4.444 8.81e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 126735  on 91419  degrees of freedom
+Residual deviance:  47775  on 91409  degrees of freedom
+AIC: 47797
+
+Number of Fisher Scoring iterations: 10</code></pre>
+</div>
+</div>
+</section>
+<section id="making-predictions-on-ros_test_data" class="level3">
+<h3 class="anchored" data-anchor-id="making-predictions-on-ros_test_data">Making Predictions on <code>ROS_test_data</code></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>ROS_test_probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(ROS_model,</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">newdata =</span> ROS_test_data,</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>ROS_test_pred <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(ROS_test_probs <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(ROS_test_pred <span class="sc">==</span> ROS_test_data<span class="sc">$</span>diabetes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8812807</code></pre>
+</div>
+</div>
+<p>So from a very comfortable A, accuracy has dropped to an almost borderline B+. Have the other performance metrics improved?</p>
+</section>
+<section id="ros-model-confusion-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="ros-model-confusion-matrix">ROS Model Confusion Matrix</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>ROS_confmatrix <span class="ot">&lt;-</span> caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(ROS_test_data<span class="sc">$</span>diabetes),</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(ROS_test_pred)</span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>ROS_confmatrix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction     0     1
+         0 10079  1349
+         1   175  1234
+                                          
+               Accuracy : 0.8813          
+                 95% CI : (0.8756, 0.8868)
+    No Information Rate : 0.7988          
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+                                          
+                  Kappa : 0.555           
+                                          
+ Mcnemar's Test P-Value : &lt; 2.2e-16       
+                                          
+            Sensitivity : 0.9829          
+            Specificity : 0.4777          
+         Pos Pred Value : 0.8820          
+         Neg Pred Value : 0.8758          
+             Prevalence : 0.7988          
+         Detection Rate : 0.7852          
+   Detection Prevalence : 0.8902          
+      Balanced Accuracy : 0.7303          
+                                          
+       'Positive' Class : 0               
+                                          </code></pre>
+</div>
+</div>
+<p>As expected, there is an increase in the value of NPV. Now that the training data has been resampled appropriately to make diabetic and non-diabetic instances as frequent, the model’s increased exposure to diabetic data, despite <em>just being duplicates</em>, affects the learning process of the model. <strong>Is this the best way to train the model though?</strong></p>
+</section>
+<section id="train-test-set-creation-for-rus" class="level3">
+<h3 class="anchored" data-anchor-id="train-test-set-creation-for-rus">Train &amp; Test Set Creation for RUS</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>for_RUS <span class="ot">&lt;-</span> <span class="fu">copy</span>(raw_df)</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="st">"123"</span>)</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>split_RUS <span class="ot">&lt;-</span> caTools<span class="sc">::</span><span class="fu">sample.split</span>(for_RUS<span class="sc">$</span>diabetes, <span class="at">SplitRatio =</span> <span class="fl">0.8</span>)</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a>RUS_train_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_RUS, split_RUS <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a>RUS_test_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_RUS, split_RUS <span class="sc">==</span> <span class="cn">FALSE</span>)</span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-10"><a href="#cb68-10" aria-hidden="true" tabindex="-1"></a>RUS_train_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              age hypertension heart_disease        bmi HbA1c_level
+            &lt;num&gt;       &lt;fctr&gt;        &lt;fctr&gt;      &lt;num&gt;       &lt;num&gt;
+    1:  1.7121451            0             1 -0.4963200   0.9454139
+    2: -0.9490171            0             0 -0.1694423   0.1238857
+    3: -0.5396076            0             0 -0.7633468  -0.5150807
+    4: -0.1301980            0             0 -1.3986865   0.8541330
+    5: -0.2325504            0             0  0.8004482  -0.6976425
+   ---                                                             
+51343: -1.2048981            0             0 -1.6196742   0.2151666
+51344: -1.2560743            0             0  0.1881281   0.3977284
+51345: -0.3349028            0             0  1.8823672  -1.8842944
+51346: -1.1537219            0             0  1.0736136  -1.4278898
+51347:  0.5350926            0             0 -0.9198798   0.9454139
+       blood_glucose_level diabetes gender_code smoking_code
+                     &lt;num&gt;   &lt;fctr&gt;      &lt;fctr&gt;       &lt;fctr&gt;
+    1:         0.008816956        0           1            0
+    2:         0.435702151        0           0            0
+    3:         0.364554618        0           1            2
+    4:         1.431767606        1           1            0
+    5:         0.127396176        0           0            0
+   ---                                                      
+51343:        -0.939816812        0           1            0
+51344:        -1.414133695        0           0            2
+51345:         0.364554618        0           1            0
+51346:        -0.939816812        0           1            0
+51347:        -1.176975254        0           1            2</code></pre>
+</div>
+</div>
+</section>
+<section id="rus-resampling" class="level3">
+<h3 class="anchored" data-anchor-id="rus-resampling">RUS Resampling</h3>
+<p>RUS works in the <em>opposite direction</em> of ROS; whereas previously the minority class was duplicated to match the count of the majority class, here random rows from the majority class is removed to match the count of the minority class. The result is a smaller dataset with fewer total samples.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>RUS_targcounts <span class="ot">&lt;-</span> <span class="fu">table</span>(RUS_train_data<span class="sc">$</span>diabetes)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>  RUS_targcounts,</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">names.arg =</span> <span class="fu">c</span>(<span class="st">"Non-diabetic"</span>, <span class="st">"Diabetic"</span>),</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="st">"steelblue"</span>,</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Target Variable Distribution Before RUS"</span>,</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Classification"</span>,</span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Observation Frequency"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="report_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The majority class outnumbers the minority class by about the same proportions again.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>RUS_output <span class="ot">&lt;-</span> ROSE<span class="sc">::</span><span class="fu">ovun.sample</span>(</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>  diabetes <span class="sc">~</span> .,</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> RUS_train_data,</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"under"</span>,</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">min</span>(<span class="fu">table</span>(RUS_train_data<span class="sc">$</span>diabetes))</span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>RUS_train_data <span class="ot">&lt;-</span> RUS_output<span class="sc">$</span>data</span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(RUS_train_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         age hypertension heart_disease         bmi HbA1c_level
+1 -0.5396076            0             0 -0.40424179  -0.6976425
+2 -0.8978409            0             0  0.33238394  -0.6976425
+3 -0.4884314            0             0 -0.16944234   0.8541330
+4  0.7909736            0             0  0.17585097   0.4890094
+5  1.1492070            0             0  0.05768393   0.5802903
+6  1.7121451            0             0 -1.53680385  -1.8842944
+  blood_glucose_level diabetes gender_code smoking_code
+1        -1.414133695        0           1            0
+2         0.127396176        0           1            0
+3         0.459417995        0           0            0
+4        -0.228341486        0           0            2
+5         0.008816956        0           0            1
+6         0.483133839        0           1            1</code></pre>
+</div>
+</div>
+<p>How does the distribution change after resampling?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>RUS_targcounts2 <span class="ot">&lt;-</span> <span class="fu">table</span>(RUS_train_data<span class="sc">$</span>diabetes)</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>  RUS_targcounts2,</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">names.arg =</span> <span class="fu">c</span>(<span class="st">"Non-diabetic"</span>, <span class="st">"Diabetic"</span>),</span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="st">"steelblue"</span>,</span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Target Variable Distribution After RUS"</span>,</span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Classification"</span>,</span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Observation Frequency"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="report_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now that the training set has been balanced, it’s time to train the model.</p>
+</section>
+<section id="model-training-on-rus-data" class="level3">
+<h3 class="anchored" data-anchor-id="model-training-on-rus-data">Model Training on RUS Data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>RUS_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(diabetes <span class="sc">~</span> .,</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> RUS_train_data,</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">family =</span> binomial)</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(RUS_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = diabetes ~ ., family = binomial, data = RUS_train_data)
+
+Coefficients:
+                     Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)          -2.36201    0.07837 -30.140  &lt; 2e-16 ***
+age                   0.94846    0.04074  23.283  &lt; 2e-16 ***
+hypertension1         0.85241    0.09053   9.416  &lt; 2e-16 ***
+heart_disease1        0.71612    0.12293   5.825 5.69e-09 ***
+bmi                   0.56312    0.03210  17.542  &lt; 2e-16 ***
+HbA1c_level           2.33316    0.06779  34.416  &lt; 2e-16 ***
+blood_glucose_level   1.30293    0.04093  31.830  &lt; 2e-16 ***
+gender_code1         -0.29158    0.06610  -4.411 1.03e-05 ***
+gender_code2         -8.78195  196.96771  -0.045    0.964    
+smoking_code1         0.03484    0.07219   0.483    0.629    
+smoking_code2         0.13265    0.09840   1.348    0.178    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 15629  on 11273  degrees of freedom
+Residual deviance:  6056  on 11263  degrees of freedom
+AIC: 6078
+
+Number of Fisher Scoring iterations: 10</code></pre>
+</div>
+</div>
+</section>
+<section id="making-predictions-on-rus_test_data" class="level3">
+<h3 class="anchored" data-anchor-id="making-predictions-on-rus_test_data">Making Predictions on <code>RUS_test_data</code></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>RUS_test_probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(RUS_model,</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">newdata =</span> RUS_test_data,</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>RUS_test_pred <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(RUS_test_probs <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(RUS_test_pred <span class="sc">==</span> RUS_test_data<span class="sc">$</span>diabetes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8829945</code></pre>
+</div>
+</div>
+<p>Accuracy is about the same as the ROS model. Are there any improvements for the other model performance metrics?</p>
+</section>
+<section id="rus-model-confusion-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="rus-model-confusion-matrix">RUS Model Confusion Matrix</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>RUS_confmatrix <span class="ot">&lt;-</span> caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(RUS_test_data<span class="sc">$</span>diabetes),</span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(RUS_test_pred)</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>RUS_confmatrix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction     0     1
+         0 10105  1323
+         1   179  1230
+                                          
+               Accuracy : 0.883           
+                 95% CI : (0.8773, 0.8885)
+    No Information Rate : 0.8011          
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+                                          
+                  Kappa : 0.5584          
+                                          
+ Mcnemar's Test P-Value : &lt; 2.2e-16       
+                                          
+            Sensitivity : 0.9826          
+            Specificity : 0.4818          
+         Pos Pred Value : 0.8842          
+         Neg Pred Value : 0.8730          
+             Prevalence : 0.8011          
+         Detection Rate : 0.7872          
+   Detection Prevalence : 0.8902          
+      Balanced Accuracy : 0.7322          
+                                          
+       'Positive' Class : 0               
+                                          </code></pre>
+</div>
+</div>
+<p>NPV and PPV seem to be about the same as their ROS counterparts.</p>
 </section>
 </section>
+</section>
+<section id="results-discussion" class="level1">
+<h1>Results &amp; Discussion</h1>
+<p>In this project a binary classification task was performed on a public health dataset containing a total of 9 features. A binary target <code>diabetes</code> was chosen to be the target of the binary classification task. Predictors consisted of 4 categorical and 4 continuous variables, all of which through EDA, were shown to be statistically significant with regards to the target variable (continuous attributes were not colinear, categorical attributes all yielded small p-values). The main challenge in performing this task was in accounting for the class imbalance of the target in the dataset, for every instance of the minority class there were about 8 of the majority class. The majority class consisted of non-diabetic observations.</p>
+<p>Modeling was done through logistic regression, this was performed three times to see the effect of different resampling approaches: (i) no resampling, (ii) random oversampling, and (iii) random undersampling. The first iteration of modeling yielded the highest accuracy metric of 94.9%, for each prediction the model made on its test set the likelihood of it being correct was 94.9%. A deeper analysis of its performance however showed that while PPV is high, NPV was only 64.5%-the model fails to predict cases where an observation should be diabetic. Given the distribution of the target, if the model predicted non-diabetic for all observations, the accuracy would still be in the 90s.</p>
+<p>The next two iterations of modeling applied either RUS or ROS to their training data to remove the class imbalance of the target. In ROS, random minority observations were duplicated until target frequencies balanced out. RUS on the other hand randomly removed instances of the majority class until the target frequencies balanced out. Both models performed similarly on their test sets, a loss of about 7% to accuracy but an increase to 88% in NPV. While these models trained on resampled data only get accurate predictions approximately 88% of the time, they’re able to predict the diabetic case 88% of the time also-a stark increase from the non-resampled’s NPV of 64.5%.</p>
 </section>
 
 </main>

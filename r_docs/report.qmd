@@ -6,7 +6,7 @@ format: html
 
 # Introduction
 
-The data used to perform this *report(?)* was obtained from an open-access Kaggle data repository. Accessing this data can be done through the link below:
+The data used to perform this *study* was obtained from an [open-access Kaggle data repository](https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset). The link to the data repository is:
 
 https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset
 
@@ -16,14 +16,14 @@ The primary objective of this study is to perform a **binary classification task
 
 To yield a performant model, it's imperative for our input data to be clean. This involves pruning observations from the original data file, scaling values, and the appropriate value conversions, among other appropriate steps that may arise.
 
-On a high level, what is done in this subsection of the *notebook(?)* are the following:
+On a high level, what is done in this subsection are the following:
 
 1. Loading the dataset into R studio.
-2. Summary statistics informing data cleanup process.
-3. Data cleanup.
+2. Null checks.
+3. Encoding.
 
 ## Loading Data
-In this step the `diabetes_prediction_dataset.csv` file is stored into a dataframe.
+In this step the `diabetes_prediction_dataset.csv` file is stored into a table.
 ```{r}
 library(data.table)
 raw_df <- fread("../data/diabetes_prediction_dataset.csv")
@@ -40,7 +40,7 @@ tail(raw_df)
 ```
 
 ## Removing Nulls
-Before further pre-processing steps (scaling, value conversion etc.), observations that aren't *complete* will be removed. Essentially rows with missing data are to be discarded from the considered dataset.
+Before further pre-processing steps (scaling, value conversion etc.), observations that aren't complete will be removed. Essentially rows with missing data are to be discarded from the considered dataset.
 
 ### Counting Nulls / Attribute
 ```{r}
@@ -49,14 +49,14 @@ colnames(raw_df)
 From this cell it can be gathered that there are 9 attributes all in all. From the whole dataset with respect to each of these attributes, we count the amount of nulls.
 ```{r}
 null_counts <- raw_df[, lapply(.SD, function(x) sum(is.na(x) | trimws(x) == ""))]
-print(null_counts)
+null_counts
 ```
 The result of the previous cell shows that all rows have complete data.
 
-## Value Conversions
-Part of data pre-processing is also ensuring that observations are stored in programmatically convenient formats. In the context of R an example of this would be storing categorical/discrete data as `factor`s.
+## Type Conversions
+Part of data pre-processing is also ensuring that observations are stored in programmatically convenient formats. [In the context of R an example of this would be storing categorical data as factors](https://www.youtube.com/watch?v=C4N3_XJJ-jU).
 
-`str(raw_df)` can be used to inspect how these values are stored in the dataframe.
+`str(raw_df)` can be used to inspect how these values are stored in the table.
 ```{r}
 str(raw_df)
 ```
@@ -72,7 +72,7 @@ print(unique_vals)
 It can be seen that the attributes: hypertension, heart_disease, and diabetes, already only have two possible values; gender and smoking_history however do not.
 
 ### Handling `gender` Attribute
-*Surface level research* shows that individuals with non-binary gender identities show higher incidence rates for other diabetes related comorbidities, e.g. smoking [(Tan et. al. 2021)](https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/#:~:text=Transgender%20and%20gender%2Dexpansive%20(TGE)%20adults%E2%80%94individuals%20who%20have,to%20smoke%20cigarettes%20than%20cisgender%20individuals%20[3].). This suggests that gender identities beyond just male and female may provide the model with sufficient information, along with other features, for classification.
+Surface level research shows that individuals with non-binary gender identities show higher incidence rates for other diabetes related comorbidities, e.g. smoking [(Tan et. al. 2021)](https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/#:~:text=Transgender%20and%20gender%2Dexpansive%20(TGE)%20adults%E2%80%94individuals%20who%20have,to%20smoke%20cigarettes%20than%20cisgender%20individuals%20[3].). This suggests that gender identities beyond just male and female may provide the model with sufficient information, along with other features, for classification.
 
 | gender | description                          | encoding |
 |------------------|--------------------------------------|----------:|
@@ -255,15 +255,13 @@ raw_df$bmi <- scale(raw_df$bmi)
 raw_df$HbA1c_level <- scale(raw_df$HbA1c_level)
 raw_df$blood_glucose_level <- scale(raw_df$blood_glucose_level)
 
-print(raw_df[, ..continuous_attr])
+head(raw_df[, ..continuous_attr])
 ```
 ## Logistic Regression without Resampling
 
 In this subsection, logistic regression is performed and evaluated for accuracy without resampling.
 ```{r}
 for_baseline <- copy(raw_df)
-
-print(for_baseline)
 ```
 ### Train & Test Set Creation
 ```{r}
@@ -276,8 +274,6 @@ split_baseline <- caTools::sample.split(for_baseline$diabetes, SplitRatio = 0.8)
 
 baseline_train_data <- subset(for_baseline, split_baseline == TRUE)
 baseline_test_data <- subset(for_baseline, split_baseline == FALSE)
-
-print(baseline_train_data)
 ```
 ### Model Training
 ```{r}
@@ -329,8 +325,6 @@ split_ROS <- caTools::sample.split(for_ROS$diabetes, SplitRatio = 0.8)
 
 ROS_train_data <- subset(for_ROS, split_ROS == TRUE)
 ROS_test_data <- subset(for_ROS, split_ROS == FALSE)
-
-print(ROS_train_data)
 ```
 ### ROS Resampling
 
@@ -350,7 +344,7 @@ barplot(
 
 The distribution in the bar graph mirrors the one shown in EDA previously.
 ```{r}
-print(ROS_targcounts)
+ROS_targcounts
 ```
 
 Getting an approximate ratio...
@@ -368,7 +362,6 @@ ROS_output <- ROSE::ovun.sample(
 )
 
 ROS_train_data <- ROS_output$data
-ROS_train_data
 ```
 
 The new target distribution is...
@@ -398,7 +391,6 @@ ROS_test_probs <- predict(ROS_model,
                           type = "response")
 ROS_test_pred <- ifelse(ROS_test_probs > 0.5, 1, 0)
 
-# report accuracy
 mean(ROS_test_pred == ROS_test_data$diabetes)
 ```
 So from a very comfortable A, accuracy has dropped to an almost borderline B+. Have the other performance metrics improved?
@@ -453,10 +445,10 @@ RUS_output <- ROSE::ovun.sample(
 )
 
 RUS_train_data <- RUS_output$data
-RUS_train_data
+head(RUS_train_data)
 ```
 
-From 51347 rows to 11274, about 4.56 times smaller!
+How does the distribution change after resampling?
 ```{r}
 RUS_targcounts2 <- table(RUS_train_data$diabetes)
 
@@ -469,4 +461,48 @@ barplot(
   ylab = "Observation Frequency")
 ```
 
-It can be seen from the bar graphs that both ROS and RUS approaches balance the training data to about the similar proportions.
+Now that the training set has been balanced, it's time to train the model.
+
+### Model Training on RUS Data
+```{r}
+RUS_model <- glm(diabetes ~ .,
+                  data = RUS_train_data,
+                  family = binomial)
+summary(RUS_model)
+```
+
+### Making Predictions on `RUS_test_data`
+```{r}
+RUS_test_probs <- predict(RUS_model,
+                          newdata = RUS_test_data,
+                          type = "response")
+RUS_test_pred <- ifelse(RUS_test_probs > 0.5, 1, 0)
+
+mean(RUS_test_pred == RUS_test_data$diabetes)
+```
+
+Accuracy is about the same as the ROS model. Are there any improvements for the other model performance metrics?
+
+### RUS Model Confusion Matrix
+```{r}
+RUS_confmatrix <- caret::confusionMatrix(
+  as.factor(RUS_test_data$diabetes),
+  as.factor(RUS_test_pred)
+)
+
+RUS_confmatrix
+```
+
+NPV and PPV seem to be about the same as their ROS counterparts.
+
+# Results & Discussion
+
+In this project a binary classification task was performed on a public health dataset containing a total of 9 features. A binary target `diabetes` was chosen to be the target of the binary classification task. Predictors consisted of 4 categorical and 4 continuous variables, all of which through EDA, were shown to be statistically significant with regards to the target variable (continuous attributes were not colinear, categorical attributes all yielded small p-values). The main challenge in performing this task was in accounting for the class imbalance of the target in the dataset, for every instance of the minority class there were about 8 of the majority class. The majority class consisted of non-diabetic observations.
+
+Modeling was done through logistic regression, this was performed three times to see the effect of different resampling approaches: (i) no resampling, (ii) random oversampling, and (iii) random undersampling. The first iteration of modeling yielded the highest accuracy metric of 94.9%, for each prediction the model made on its test set the likelihood of it being correct was 94.9%. A deeper analysis of its performance however showed that while PPV is high, NPV was only 64.5%-the model fails to predict cases where an observation should be diabetic. Given the distribution of the target, if the model predicted non-diabetic for all observations, the accuracy would still be in the 90s.
+
+The next two iterations of modeling applied either RUS or ROS to their training data to remove the class imbalance of the target. In ROS, random minority observations were duplicated until target frequencies balanced out. RUS on the other hand randomly removed instances of the majority class until the target frequencies balanced out. Both models performed similarly on their test sets, a loss of about 7% to accuracy but an increase to 88% in NPV. While these models trained on resampled data only get accurate predictions approximately 88% of the time, they're able to predict the diabetic case 88% of the time also-a stark increase from the non-resampled's NPV of 64.5%. Whether or not this is the case that defines the metric for model sensitivity requires input from domain experts.
+
+This project was primarily inspired by the study done by [Deina et. al. (2024)](https://bmchealthservres.biomedcentral.com/articles/10.1186/s12913-023-10418-6). It's a paper that proposed a ML framework for data preparation and model training alongside introducing a novel resampling technique, Instance Hardness Threshold (IHT), and model,  Symbolic Regression (SR), to predict medical appointment no-shows. The paper compared performances of KNN, SVM, and SR models alongside different sampling techniques such as RUS, SMOTE, NearMiss - 1, and IHT. Through iterations of cross-validation they found that the combination of SR & IHT outperformed almost every other combination for most performance metrics.
+
+This project's methodology initially was to compare a suite of oversampling and undersampling techniques to the performance of a KNN model and a logistic regression model. However due to limitations in compute power, made apparent in an attempt to do SMOTE, the project was downsized to just a comparison of no-resampling, ROS, and RUS when paired with logistic regression. Despite this, the project still demonstrates the benefits of resampling especially when dealing with highly imbalanced datasets. Further iterations of this project may look into improving the EDA/feature engineering/feature extraction along with using more models.
