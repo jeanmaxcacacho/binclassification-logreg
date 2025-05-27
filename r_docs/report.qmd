@@ -238,6 +238,8 @@ All that being said, failure to reject the null hypothesis for any of the variab
 
 From EDA, through the use of correlation matrix and Chi-square tests, the final feature set was obtained. Continuous variables were not colinear with each other and all categorical variables yielded small p-values, as such all nine features from the base dataset is used in modeling.
 
+In this section logistic regression is run three times: (i) without resampling, (ii) resampling with SMOTE, and (iii) resampling with RUS. The target data distribution is heavily imbalanced, making the dataset a good candidate for analyzing performance contributions/effects of resampling techniques.
+
 ## Scaling Continuous Attributes
 
 https://www.geeksforgeeks.org/logistic-regression-and-the-feature-scaling-ensemble/
@@ -253,5 +255,51 @@ raw_df$bmi <- scale(raw_df$bmi)
 raw_df$HbA1c_level <- scale(raw_df$HbA1c_level)
 raw_df$blood_glucose_level <- scale(raw_df$blood_glucose_level)
 
-print(raw_df)
+print(raw_df[, ..continuous_attr])
 ```
+### Logistic Regression without Resampling
+
+In this subsection, logistic regression is performed and evaluated for accuracy without resampling.
+```{r}
+for_baseline <- copy(raw_df)
+
+print(for_baseline)
+```
+#### Train & Test Set Creation
+```{r}
+# https://rpubs.com/SameerMathur/LR_GLM_CCDefault
+library("caTools")
+
+set.seed("123")
+
+# there are 60k rows so let's try 80-20
+split_baseline <- sample.split(for_baseline$diabetes, SplitRatio = 0.8)
+
+baseline_train_data <- subset(for_baseline, split_baseline == TRUE)
+baseline_test_data <- subset(for_baseline, split_baseline == FALSE)
+
+print(baseline_train_data)
+print(baseline_test_data)
+```
+#### Model Training
+```{r}
+baseline_model <- glm(diabetes ~ .,
+                      data = baseline_train_data,
+                      family = binomial)
+summary(baseline_model)
+```
+#### Making Predictions on `baseline_test_data`
+```{r}
+baseline_test_probs <- predict(baseline_model,
+                               newdata = baseline_test_data,
+                               type = "response")
+baseline_test_pred <- ifelse(baseline_test_probs > 0.5, 1, 0)
+
+# report accuracy
+mean(baseline_test_pred == baseline_test_data$diabetes)
+```
+Without any resampling, the probability of an accurate prediction is 94.9%.
+
+### Logistic Regression with SMOTE
+
+### Logistic Regression with RUS
