@@ -1,7 +1,14 @@
 ---
 title: "Binary Classification With Logistic Regression"
 author: Jean Maximus C. Cacacho
-format: html
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 1
+    number-sections: true
+    smooth-scroll: true
+    self-contained: true
 ---
 
 # Introduction
