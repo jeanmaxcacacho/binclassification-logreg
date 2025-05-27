@@ -690,8 +690,9 @@ X-squared = 253.13, df = 2, p-value &lt; 2.2e-16</code></pre>
 64184:  0.5350926 -0.91987980   0.9454139        -1.176975254</code></pre>
 </div>
 </div>
-<section id="logistic-regression-without-resampling" class="level3">
-<h3 class="anchored" data-anchor-id="logistic-regression-without-resampling">Logistic Regression without Resampling</h3>
+</section>
+<section id="logistic-regression-without-resampling" class="level2">
+<h2 class="anchored" data-anchor-id="logistic-regression-without-resampling">Logistic Regression without Resampling</h2>
 <p>In this subsection, logistic regression is performed and evaluated for accuracy without resampling.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>for_baseline <span class="ot">&lt;-</span> <span class="fu">copy</span>(raw_df)</span>
@@ -726,21 +727,20 @@ X-squared = 253.13, df = 2, p-value &lt; 2.2e-16</code></pre>
 64184:        -1.176975254        0           1            2</code></pre>
 </div>
 </div>
-<section id="train-test-set-creation" class="level4">
-<h4 class="anchored" data-anchor-id="train-test-set-creation">Train &amp; Test Set Creation</h4>
+<section id="train-test-set-creation" class="level3">
+<h3 class="anchored" data-anchor-id="train-test-set-creation">Train &amp; Test Set Creation</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># https://rpubs.com/SameerMathur/LR_GLM_CCDefault</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"caTools"</span>)</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="st">"123"</span>)</span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="co"># there are 60k rows so let's try 80-20</span></span>
-<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>split_baseline <span class="ot">&lt;-</span> <span class="fu">sample.split</span>(for_baseline<span class="sc">$</span>diabetes, <span class="at">SplitRatio =</span> <span class="fl">0.8</span>)</span>
-<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>baseline_train_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
-<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>baseline_test_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">FALSE</span>)</span>
-<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_train_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="st">"123"</span>)</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="co"># there are 60k rows so let's try 80-20</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>split_baseline <span class="ot">&lt;-</span> caTools<span class="sc">::</span><span class="fu">sample.split</span>(for_baseline<span class="sc">$</span>diabetes, <span class="at">SplitRatio =</span> <span class="fl">0.8</span>)</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>baseline_train_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>baseline_test_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">FALSE</span>)</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_train_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>              age hypertension heart_disease        bmi HbA1c_level
             &lt;num&gt;       &lt;fctr&gt;        &lt;fctr&gt;      &lt;num&gt;       &lt;num&gt;
@@ -800,8 +800,8 @@ X-squared = 253.13, df = 2, p-value &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </section>
-<section id="model-training" class="level4">
-<h4 class="anchored" data-anchor-id="model-training">Model Training</h4>
+<section id="model-training" class="level3">
+<h3 class="anchored" data-anchor-id="model-training">Model Training</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>baseline_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(diabetes <span class="sc">~</span> .,</span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> baseline_train_data,</span>
@@ -842,8 +842,8 @@ Number of Fisher Scoring iterations: 11</code></pre>
 </div>
 </div>
 </section>
-<section id="making-predictions-on-baseline_test_data" class="level4">
-<h4 class="anchored" data-anchor-id="making-predictions-on-baseline_test_data">Making Predictions on <code>baseline_test_data</code></h4>
+<section id="making-predictions-on-baseline_test_data" class="level3">
+<h3 class="anchored" data-anchor-id="making-predictions-on-baseline_test_data">Making Predictions on <code>baseline_test_data</code></h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>baseline_test_probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(baseline_model,</span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>                               <span class="at">newdata =</span> baseline_test_data,</span>
@@ -856,14 +856,59 @@ Number of Fisher Scoring iterations: 11</code></pre>
 <pre><code>[1] 0.9498325</code></pre>
 </div>
 </div>
-<p>Without any resampling, the probability of an accurate prediction is 94.9%.</p>
+<p>Without any resampling, the probability of an accurate prediction is 94.9%? That’s higher than most people’s final grade in CSCI 21! Recall that the target distribution is greatly imbalanced, this is may be a case of the <em>accuracy paradox</em> where the model correctly makes predictions on the majority class and neglects the minority class.</p>
+</section>
+<section id="confusion-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="confusion-matrix">Confusion Matrix</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>baseline_confmatrix <span class="ot">&lt;-</span> caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(baseline_test_data<span class="sc">$</span>diabetes),</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(baseline_test_pred)</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_confmatrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          Reference
+Prediction     0     1
+         0 11284   144
+         1   500   909
+                                          
+               Accuracy : 0.9498          
+                 95% CI : (0.9459, 0.9535)
+    No Information Rate : 0.918           
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+                                          
+                  Kappa : 0.7113          
+                                          
+ Mcnemar's Test P-Value : &lt; 2.2e-16       
+                                          
+            Sensitivity : 0.9576          
+            Specificity : 0.8632          
+         Pos Pred Value : 0.9874          
+         Neg Pred Value : 0.6451          
+             Prevalence : 0.9180          
+         Detection Rate : 0.8790          
+   Detection Prevalence : 0.8902          
+      Balanced Accuracy : 0.9104          
+                                          
+       'Positive' Class : 0               
+                                          </code></pre>
+</div>
+</div>
+<p>The confusion matrix sheds more light on the model’s performance. For cases where the model is tested on diabetic data (the correct prediction is 1), the model does not perform so well. In the second line of the confusion matrix the ratio between false positives and true positives is 500:909.</p>
+<p>PPV and NPV values make more apparent the <em>accuracy paradox</em>. The PPV being 98.7% means that when the model makes a 0 prediction (non-diabetic), it is correct 98.7% of the time. In contrast, the NPV being 64.5% means that when the model predicts a 1 prediction (diabetic), it is only correct 64.5% of the time. <strong>Given the class imbalance, the model will still get a high accuracy mark if it just predicted all observations to be non-diabetic.</strong></p>
 </section>
 </section>
-<section id="logistic-regression-with-smote" class="level3">
-<h3 class="anchored" data-anchor-id="logistic-regression-with-smote">Logistic Regression with SMOTE</h3>
+<section id="logistic-regression-with-resampling" class="level2">
+<h2 class="anchored" data-anchor-id="logistic-regression-with-resampling">Logistic Regression with Resampling</h2>
+<p>The previous subsection showed room for improvement with the NPV of the model. One of the main challenges in classification tasks is deciding how to handle class imbalances, one of the ways this is adressed is through resampling. The resampling approaches used in this project are: <strong>(i) Oversampling with SMOTE, and (ii) Undersampling with RUS</strong>.</p>
+<section id="modeling-with-smote" class="level3">
+<h3 class="anchored" data-anchor-id="modeling-with-smote">Modeling with SMOTE</h3>
 </section>
-<section id="logistic-regression-with-rus" class="level3">
-<h3 class="anchored" data-anchor-id="logistic-regression-with-rus">Logistic Regression with RUS</h3>
+<section id="modeling-with-rus" class="level3">
+<h3 class="anchored" data-anchor-id="modeling-with-rus">Modeling with RUS</h3>
 </section>
 </section>
 </section>

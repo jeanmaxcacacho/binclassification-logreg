@@ -257,7 +257,7 @@ raw_df$blood_glucose_level <- scale(raw_df$blood_glucose_level)
 
 print(raw_df[, ..continuous_attr])
 ```
-### Logistic Regression without Resampling
+## Logistic Regression without Resampling
 
 In this subsection, logistic regression is performed and evaluated for accuracy without resampling.
 ```{r}
@@ -265,30 +265,28 @@ for_baseline <- copy(raw_df)
 
 print(for_baseline)
 ```
-#### Train & Test Set Creation
+### Train & Test Set Creation
 ```{r}
 # https://rpubs.com/SameerMathur/LR_GLM_CCDefault
-library("caTools")
 
 set.seed("123")
 
 # there are 60k rows so let's try 80-20
-split_baseline <- sample.split(for_baseline$diabetes, SplitRatio = 0.8)
+split_baseline <- caTools::sample.split(for_baseline$diabetes, SplitRatio = 0.8)
 
 baseline_train_data <- subset(for_baseline, split_baseline == TRUE)
 baseline_test_data <- subset(for_baseline, split_baseline == FALSE)
 
 print(baseline_train_data)
-print(baseline_test_data)
 ```
-#### Model Training
+### Model Training
 ```{r}
 baseline_model <- glm(diabetes ~ .,
                       data = baseline_train_data,
                       family = binomial)
 summary(baseline_model)
 ```
-#### Making Predictions on `baseline_test_data`
+### Making Predictions on `baseline_test_data`
 ```{r}
 baseline_test_probs <- predict(baseline_model,
                                newdata = baseline_test_data,
@@ -299,19 +297,79 @@ baseline_test_pred <- ifelse(baseline_test_probs > 0.5, 1, 0)
 mean(baseline_test_pred == baseline_test_data$diabetes)
 ```
 Without any resampling, the probability of an accurate prediction is 94.9%? That's higher than most people's final grade in CSCI 21! Recall that the target distribution is greatly imbalanced, this is may be a case of the *accuracy paradox* where the model correctly makes predictions on the majority class and neglects the minority class.
-#### Precision, Recall, and F1-Score
-```{r}
-library(caret)
 
-baseline_confmatrix <- confusionMatrix(as.factor(baseline_test_data$diabetes),
-                                       as.factor(baseline_test_pred))
+### Confusion Matrix
+```{r}
+# https://www.geeksforgeeks.org/confusion-matrix-in-r/
+
+baseline_confmatrix <- caret::confusionMatrix(
+  as.factor(baseline_test_data$diabetes),
+  as.factor(baseline_test_pred)
+)
 
 print(baseline_confmatrix)
 ```
-The confusion matrix sheds more light on the model's performance. For cases where the model is tested on diabetic data (the correct answer is 1), the model does not perform so well. In the second line of the confusion matrix the ratio between false positives and true positives is 500:909.
+The confusion matrix sheds more light on the model's performance. For cases where the model is tested on diabetic data (the correct prediction is 1), the model does not perform so well. In the second line of the confusion matrix the ratio between false positives and true positives is 500:909.
 
-PPV and NPV values also make more apparent the *accuracy paradox*. The PPV being 98.7% means that when the model makes a 0 prediction (non-diabetic), it is correct 98.7% of the time. In contrast, the NPV being 64.5% means that when the model predicts a 1 prediction (diabetic), it is only correct 64.5% of the time. **Given the class imbalance, the model will still get a high accuracy mark if it just predicted all observations to be non-diabetic.**
+PPV and NPV values make more apparent the *accuracy paradox*. The PPV being 98.7% means that when the model makes a 0 prediction (non-diabetic), it is correct 98.7% of the time. In contrast, the NPV being 64.5% means that when the model predicts a 1 prediction (diabetic), it is only correct 64.5% of the time. **Given the class imbalance, the model will still get a high accuracy mark if it just predicted all observations to be non-diabetic.**
 
-### Logistic Regression with SMOTE
+## Logistic Regression with Resampling
 
-### Logistic Regression with RUS
+The previous subsection showed room for improvement with the NPV of the model. One of the main challenges in classification tasks is deciding how to handle class imbalances, one of the ways this is adressed is through resampling. Resampling, makes it so that the proportions in the training data is more balanced, giving the model more exposure to both targets.
+
+The resampling approaches used in this project are: **(i) Oversampling with SMOTE, and (ii) Undersampling with RUS**. 
+
+### Train & Test Set Creation for SMOTE
+```{r}
+for_SMOTE <- copy(raw_df)
+
+set.seed("123")
+
+split_SMOTE <- caTools::sample.split(for_SMOTE$diabetes, SplitRatio = 0.8)
+
+SMOTE_train_data <- subset(for_SMOTE, split_SMOTE == TRUE)
+SMOTE_test_data <- subset(for_SMOTE, split_SMOTE == FALSE)
+
+print(SMOTE_train_data)
+```
+### SMOTE Resampling
+
+SMOTE works by synthetically generating more observations of the minority class. For each minority instance, it uses KNN to generate synthetic observations. The process stops when the desired class balance is achieved, usually this is 50:50. The class balance considered for the amount of new instances created per minority instance and majority instances kept is the distribution in the training data.
+
+```{r}
+SMOTE_targcounts <- table(SMOTE_train_data$diabetes)
+
+barplot(
+  SMOTE_targcounts,
+  names.arg = c("Non-diabetic", "Diabetic"),
+  col = "steelblue",
+  main = "Target Variable Distribution in SMOTE Train Set",
+  xlab = "Classification",
+  ylab = "Observation Frequency")
+```
+
+The distribution in the bar graph mirrors the one shown in EDA previously.
+```{r}
+print(SMOTE_targcounts)
+```
+
+Getting an approximate ratio...
+```{r}
+library(MASS)
+targ_ratio <- 45710 / 5637
+targ_ratio
+```
+The ratio of majority to minority class is about 8:1. From this we can resample the train set accordingly. SMOTE implementation used in this project is from the `smotefamily` package.
+```{r}
+# separate features from label
+features <- names(SMOTE_train_data)[names(SMOTE_train_data) != "diabetes"]
+X <- SMOTE_train_data[, ..features]
+
+y <- SMOTE_train_data$diabetes
+
+# str(X)
+# str(y)
+SMOTEd <- smotefamily::SMOTE(X, y, K = 3, dup_size = 7)
+```
+
+### Modeling with RUS
