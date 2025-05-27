@@ -410,20 +410,63 @@ ROS_confmatrix <- caret::confusionMatrix(
   as.factor(ROS_test_pred)
 )
 
-print(ROS_confmatrix)
+ROS_confmatrix
 ```
 As expected, there is an increase in the value of NPV. Now that the training data has been resampled appropriately to make diabetic and non-diabetic instances as frequent, the model's increased exposure to diabetic data, despite *just being duplicates*, affects the learning process of the model. **Is this the best way to train the model though?**
 
 ### Train & Test Set Creation for RUS
 ```{r}
-for_ROS <- copy(raw_df)
+for_RUS <- copy(raw_df)
 
 set.seed("123")
 
-split_ROS <- caTools::sample.split(for_ROS$diabetes, SplitRatio = 0.8)
+split_RUS <- caTools::sample.split(for_RUS$diabetes, SplitRatio = 0.8)
 
-ROS_train_data <- subset(for_ROS, split_ROS == TRUE)
-ROS_test_data <- subset(for_ROS, split_ROS == FALSE)
+RUS_train_data <- subset(for_RUS, split_RUS == TRUE)
+RUS_test_data <- subset(for_RUS, split_RUS == FALSE)
 
-print(ROS_train_data)
+RUS_train_data
 ```
+
+### RUS Resampling
+
+RUS works in the *opposite direction* of ROS; whereas previously the minority class was duplicated to match the count of the majority class, here random rows from the majority class is removed to match the count of the minority class. The result is a smaller dataset with fewer total samples.
+```{r}
+RUS_targcounts <- table(RUS_train_data$diabetes)
+
+barplot(
+  RUS_targcounts,
+  names.arg = c("Non-diabetic", "Diabetic"),
+  col = "steelblue",
+  main = "Target Variable Distribution Before RUS",
+  xlab = "Classification",
+  ylab = "Observation Frequency")
+```
+
+The majority class outnumbers the minority class by about the same proportions again.
+```{r}
+RUS_output <- ROSE::ovun.sample(
+  diabetes ~ .,
+  data = RUS_train_data,
+  method = "under",
+  N = 2*min(table(RUS_train_data$diabetes))
+)
+
+RUS_train_data <- RUS_output$data
+RUS_train_data
+```
+
+From 51347 rows to 11274, about 4.56 times smaller!
+```{r}
+RUS_targcounts2 <- table(RUS_train_data$diabetes)
+
+barplot(
+  RUS_targcounts2,
+  names.arg = c("Non-diabetic", "Diabetic"),
+  col = "steelblue",
+  main = "Target Variable Distribution After RUS",
+  xlab = "Classification",
+  ylab = "Observation Frequency")
+```
+
+It can be seen from the bar graphs that both ROS and RUS approaches balance the training data to about the similar proportions.
