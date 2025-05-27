@@ -692,6 +692,172 @@ X-squared = 253.13, df = 2, p-value &lt; 2.2e-16</code></pre>
 </div>
 <section id="logistic-regression-without-resampling" class="level3">
 <h3 class="anchored" data-anchor-id="logistic-regression-without-resampling">Logistic Regression without Resampling</h3>
+<p>In this subsection, logistic regression is performed and evaluated for accuracy without resampling.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>for_baseline <span class="ot">&lt;-</span> <span class="fu">copy</span>(raw_df)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(for_baseline)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              age hypertension heart_disease         bmi HbA1c_level
+            &lt;num&gt;       &lt;fctr&gt;        &lt;fctr&gt;       &lt;num&gt;       &lt;num&gt;
+    1:  1.7121451            0             1 -0.49632000   0.9454139
+    2: -0.9490171            0             0 -0.16944234   0.1238857
+    3: -0.5396076            0             0 -0.76334683  -0.5150807
+    4:  1.5074403            1             1 -1.27131166  -0.6976425
+    5: -1.3584267            0             0 -0.16944234   0.9454139
+   ---                                                              
+64180: -1.0513695            0             0  0.90787279   0.8541330
+64181: -0.3349028            0             0  1.88236724  -1.8842944
+64182:  0.9956784            0             0 -0.09117585   0.1238857
+64183: -1.1537219            0             0  1.07361358  -1.4278898
+64184:  0.5350926            0             0 -0.91987980   0.9454139
+       blood_glucose_level diabetes gender_code smoking_code
+                     &lt;num&gt;   &lt;fctr&gt;      &lt;fctr&gt;       &lt;fctr&gt;
+    1:         0.008816956        0           1            0
+    2:         0.435702151        0           0            0
+    3:         0.364554618        0           1            2
+    4:         0.364554618        0           0            2
+    5:        -1.295554474        0           1            0
+   ---                                                      
+64180:         0.483133839        0           1            0
+64181:         0.364554618        0           1            0
+64182:         0.364554618        0           0            1
+64183:        -0.939816812        0           1            0
+64184:        -1.176975254        0           1            2</code></pre>
+</div>
+</div>
+<section id="train-test-set-creation" class="level4">
+<h4 class="anchored" data-anchor-id="train-test-set-creation">Train &amp; Test Set Creation</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># https://rpubs.com/SameerMathur/LR_GLM_CCDefault</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"caTools"</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="st">"123"</span>)</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="co"># there are 60k rows so let's try 80-20</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>split_baseline <span class="ot">&lt;-</span> <span class="fu">sample.split</span>(for_baseline<span class="sc">$</span>diabetes, <span class="at">SplitRatio =</span> <span class="fl">0.8</span>)</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>baseline_train_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>baseline_test_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">FALSE</span>)</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_train_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              age hypertension heart_disease        bmi HbA1c_level
+            &lt;num&gt;       &lt;fctr&gt;        &lt;fctr&gt;      &lt;num&gt;       &lt;num&gt;
+    1:  1.7121451            0             1 -0.4963200   0.9454139
+    2: -0.9490171            0             0 -0.1694423   0.1238857
+    3: -0.5396076            0             0 -0.7633468  -0.5150807
+    4: -0.1301980            0             0 -1.3986865   0.8541330
+    5: -0.2325504            0             0  0.8004482  -0.6976425
+   ---                                                             
+51343: -1.2048981            0             0 -1.6196742   0.2151666
+51344: -1.2560743            0             0  0.1881281   0.3977284
+51345: -0.3349028            0             0  1.8823672  -1.8842944
+51346: -1.1537219            0             0  1.0736136  -1.4278898
+51347:  0.5350926            0             0 -0.9198798   0.9454139
+       blood_glucose_level diabetes gender_code smoking_code
+                     &lt;num&gt;   &lt;fctr&gt;      &lt;fctr&gt;       &lt;fctr&gt;
+    1:         0.008816956        0           1            0
+    2:         0.435702151        0           0            0
+    3:         0.364554618        0           1            2
+    4:         1.431767606        1           1            0
+    5:         0.127396176        0           0            0
+   ---                                                      
+51343:        -0.939816812        0           1            0
+51344:        -1.414133695        0           0            2
+51345:         0.364554618        0           1            0
+51346:        -0.939816812        0           1            0
+51347:        -1.176975254        0           1            2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_test_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              age hypertension heart_disease         bmi HbA1c_level
+            &lt;num&gt;       &lt;fctr&gt;        &lt;fctr&gt;       &lt;num&gt;       &lt;num&gt;
+    1:  1.5074403            1             1 -1.27131166  -0.6976425
+    2: -1.3584267            0             0 -0.16944234   0.9454139
+    3:  0.3303878            0             0 -0.16944234   0.4890094
+    4:  1.0468546            0             0 -0.41958816   0.2151666
+    5:  1.1492070            0             0 -1.10250159  -0.6976425
+   ---                                                              
+12833:  0.2280354            0             0 -0.16944234  -1.4278898
+12834:  0.2792116            0             0 -0.16944234   0.4890094
+12835:  1.7121451            0             0  0.24797891   0.3977284
+12836: -1.0513695            0             0  0.90787279   0.8541330
+12837:  0.9956784            0             0 -0.09117585   0.1238857
+       blood_glucose_level diabetes gender_code smoking_code
+                     &lt;num&gt;   &lt;fctr&gt;      &lt;fctr&gt;       &lt;fctr&gt;
+    1:         0.364554618        0           0            2
+    2:        -1.295554474        0           1            0
+    3:        -1.295554474        0           1            0
+    4:         1.431767606        0           1            0
+    5:        -1.295554474        0           1            0
+   ---                                                      
+12833:         0.008816956        0           1            0
+12834:         0.127396176        0           1            0
+12835:        -0.323204863        0           1            0
+12836:         0.483133839        0           1            0
+12837:         0.364554618        0           0            1</code></pre>
+</div>
+</div>
+</section>
+<section id="model-training" class="level4">
+<h4 class="anchored" data-anchor-id="model-training">Model Training</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>baseline_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(diabetes <span class="sc">~</span> .,</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> baseline_train_data,</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">family =</span> binomial)</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(baseline_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = diabetes ~ ., family = binomial, data = baseline_train_data)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.7527  -0.2421  -0.0863  -0.0212   3.4235  
+
+Coefficients:
+                     Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)          -4.56196    0.06150 -74.176  &lt; 2e-16 ***
+age                   0.92721    0.02885  32.143  &lt; 2e-16 ***
+hypertension1         0.72621    0.05672  12.804  &lt; 2e-16 ***
+heart_disease1        0.72911    0.07595   9.600  &lt; 2e-16 ***
+bmi                   0.56807    0.02055  27.638  &lt; 2e-16 ***
+HbA1c_level           2.52982    0.04873  51.913  &lt; 2e-16 ***
+blood_glucose_level   1.37864    0.02535  54.389  &lt; 2e-16 ***
+gender_code1         -0.29150    0.04507  -6.468 9.92e-11 ***
+gender_code2         -7.82022  103.65242  -0.075    0.940    
+smoking_code1         0.02267    0.04891   0.463    0.643    
+smoking_code2         0.14949    0.06802   2.198    0.028 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 35538  on 51346  degrees of freedom
+Residual deviance: 14314  on 51336  degrees of freedom
+AIC: 14336
+
+Number of Fisher Scoring iterations: 11</code></pre>
+</div>
+</div>
+</section>
+<section id="making-predictions-on-baseline_test_data" class="level4">
+<h4 class="anchored" data-anchor-id="making-predictions-on-baseline_test_data">Making Predictions on <code>baseline_test_data</code></h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>baseline_test_probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(baseline_model,</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>                               <span class="at">newdata =</span> baseline_test_data,</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>baseline_test_pred <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(baseline_test_probs <span class="sc">&gt;</span> <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a><span class="co"># report accuracy</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(baseline_test_pred <span class="sc">==</span> baseline_test_data<span class="sc">$</span>diabetes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.9498325</code></pre>
+</div>
+</div>
+<p>Without any resampling, the probability of an accurate prediction is 94.9%.</p>
+</section>
 </section>
 <section id="logistic-regression-with-smote" class="level3">
 <h3 class="anchored" data-anchor-id="logistic-regression-with-smote">Logistic Regression with SMOTE</h3>

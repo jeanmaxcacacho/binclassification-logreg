@@ -298,7 +298,19 @@ baseline_test_pred <- ifelse(baseline_test_probs > 0.5, 1, 0)
 # report accuracy
 mean(baseline_test_pred == baseline_test_data$diabetes)
 ```
-Without any resampling, the probability of an accurate prediction is 94.9%.
+Without any resampling, the probability of an accurate prediction is 94.9%? That's higher than most people's final grade in CSCI 21! Recall that the target distribution is greatly imbalanced, this is may be a case of the *accuracy paradox* where the model correctly makes predictions on the majority class and neglects the minority class.
+#### Precision, Recall, and F1-Score
+```{r}
+library(caret)
+
+baseline_confmatrix <- confusionMatrix(as.factor(baseline_test_data$diabetes),
+                                       as.factor(baseline_test_pred))
+
+print(baseline_confmatrix)
+```
+The confusion matrix sheds more light on the model's performance. For cases where the model is tested on diabetic data (the correct answer is 1), the model does not perform so well. In the second line of the confusion matrix the ratio between false positives and true positives is 500:909.
+
+PPV and NPV values also make more apparent the *accuracy paradox*. The PPV being 98.7% means that when the model makes a 0 prediction (non-diabetic), it is correct 98.7% of the time. In contrast, the NPV being 64.5% means that when the model predicts a 1 prediction (diabetic), it is only correct 64.5% of the time. **Given the class imbalance, the model will still get a high accuracy mark if it just predicted all observations to be non-diabetic.**
 
 ### Logistic Regression with SMOTE
 
