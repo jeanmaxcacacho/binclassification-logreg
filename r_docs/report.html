@@ -695,15 +695,13 @@ X-squared = 253.13, df = 2, p-value &lt; 2.2e-16</code></pre>
 <section id="train-test-set-creation" class="level3">
 <h3 class="anchored" data-anchor-id="train-test-set-creation">Train &amp; Test Set Creation</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># https://rpubs.com/SameerMathur/LR_GLM_CCDefault</span></span>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="st">"123"</span>)</span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="st">"123"</span>)</span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="co"># there are 60k rows so let's try 80-20</span></span>
-<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>split_baseline <span class="ot">&lt;-</span> caTools<span class="sc">::</span><span class="fu">sample.split</span>(for_baseline<span class="sc">$</span>diabetes, <span class="at">SplitRatio =</span> <span class="fl">0.8</span>)</span>
-<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>baseline_train_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
-<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>baseline_test_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="co"># there are 60k rows so let's try 80-20</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>split_baseline <span class="ot">&lt;-</span> caTools<span class="sc">::</span><span class="fu">sample.split</span>(for_baseline<span class="sc">$</span>diabetes, <span class="at">SplitRatio =</span> <span class="fl">0.8</span>)</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>baseline_train_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>baseline_test_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(for_baseline, split_baseline <span class="sc">==</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="model-training" class="level3">
@@ -763,14 +761,12 @@ Number of Fisher Scoring iterations: 11</code></pre>
 <section id="confusion-matrix" class="level3">
 <h3 class="anchored" data-anchor-id="confusion-matrix">Confusion Matrix</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># https://www.geeksforgeeks.org/confusion-matrix-in-r/</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>baseline_confmatrix <span class="ot">&lt;-</span> caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(</span>
-<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(baseline_test_data<span class="sc">$</span>diabetes),</span>
-<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(baseline_test_pred)</span>
-<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_confmatrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>baseline_confmatrix <span class="ot">&lt;-</span> caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(baseline_test_data<span class="sc">$</span>diabetes),</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.factor</span>(baseline_test_pred)</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(baseline_confmatrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Confusion Matrix and Statistics
 
@@ -1196,9 +1192,24 @@ Prediction     0     1
 </section>
 <section id="results-discussion" class="level1">
 <h1>Results &amp; Discussion</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show barplot ekekekek</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>In this project a binary classification task was performed on a public health dataset containing a total of 9 features. A binary target <code>diabetes</code> was chosen to be the target of the binary classification task. Predictors consisted of 4 categorical and 4 continuous variables, all of which through EDA, were shown to be statistically significant with regards to the target variable (continuous attributes were not colinear, categorical attributes all yielded small p-values). The main challenge in performing this task was in accounting for the class imbalance of the target in the dataset, for every instance of the minority class there were about 8 of the majority class. The majority class consisted of non-diabetic observations.</p>
 <p>Modeling was done through logistic regression, this was performed three times to see the effect of different resampling approaches: (i) no resampling, (ii) random oversampling, and (iii) random undersampling. The first iteration of modeling yielded the highest accuracy metric of 94.9%, for each prediction the model made on its test set the likelihood of it being correct was 94.9%. A deeper analysis of its performance however showed that while PPV is high, NPV was only 64.5%-the model fails to predict cases where an observation should be diabetic. Given the distribution of the target, if the model predicted non-diabetic for all observations, the accuracy would still be in the 90s.</p>
-<p>The next two iterations of modeling applied either RUS or ROS to their training data to remove the class imbalance of the target. In ROS, random minority observations were duplicated until target frequencies balanced out. RUS on the other hand randomly removed instances of the majority class until the target frequencies balanced out. Both models performed similarly on their test sets, a loss of about 7% to accuracy but an increase to 88% in NPV. While these models trained on resampled data only get accurate predictions approximately 88% of the time, they’re able to predict the diabetic case 88% of the time also-a stark increase from the non-resampled’s NPV of 64.5%.</p>
+<p>The next two iterations of modeling applied either RUS or ROS to their training data to remove the class imbalance of the target. In ROS, random minority observations were duplicated until target frequencies balanced out. RUS on the other hand randomly removed instances of the majority class until the target frequencies balanced out. Both models performed similarly on their test sets, a loss of about 7% to accuracy but an increase to 88% in NPV. While these models trained on resampled data only get accurate predictions approximately 88% of the time, they’re able to predict the diabetic case 88% of the time also-a stark increase from the non-resampled’s NPV of 64.5%. Whether or not this is the case that defines the metric for model sensitivity requires input from domain experts.</p>
+<p>This project was primarily inspired by the study done by <a href="https://bmchealthservres.biomedcentral.com/articles/10.1186/s12913-023-10418-6">Deina et. al.&nbsp;(2024)</a>. It’s a paper that proposed a ML framework for data preparation and model training alongside introducing a novel resampling technique, Instance Hardness Threshold (IHT), and model, Symbolic Regression (SR), to predict medical appointment no-shows. The paper compared performances of KNN, SVM, and SR models alongside different sampling techniques such as RUS, SMOTE, NearMiss - 1, and IHT. Through iterations of cross-validation they found that the combination of SR &amp; IHT outperformed almost every other combination for most performance metrics.</p>
+<p>This project’s methodology initially was to compare a suite of oversampling and undersampling techniques to the performance of a KNN model and a logistic regression model. However due to limitations in compute power, made apparent in an attempt to do SMOTE, the project was downsized to just a comparison of no-resampling, ROS, and RUS when paired with logistic regression. Despite this, the project still demonstrates the benefits of resampling especially when dealing with highly imbalanced datasets. Further iterations of this project may look into improving the EDA/feature engineering/feature extraction along with using more models.</p>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<p>Excluding the dataset, here is a list of the resources that were consulted in the making of this project:</p>
+<p>https://bmchealthservres.biomedcentral.com/articles/10.1186/s12913-023-10418-6</p>
+<p>https://www.geeksforgeeks.org/confusion-matrix-in-r/</p>
+<p>https://rpubs.com/SameerMathur/LR_GLM_CCDefault</p>
+<p>https://www.youtube.com/watch?v=C4N3_XJJ-jU</p>
+<p>https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/#:~:text=Transgender%20and%20gender%2Dexpansive%20(TGE)%20adults%E2%80%94individuals%20who%20have,to%20smoke%20cigarettes%20than%20cisgender%20individuals%20[3].</p>
+<p>https://www.cdc.gov/mmwr/volumes/72/wr/mm7210a7.htm</p>
 </section>
 
 </main>

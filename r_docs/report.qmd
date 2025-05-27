@@ -242,8 +242,6 @@ In this section logistic regression is run three times: (i) without resampling, 
 
 ## Scaling Continuous Attributes
 
-https://www.geeksforgeeks.org/logistic-regression-and-the-feature-scaling-ensemble/
-
 An inspection of the data's continuous attributes (e.g. `age`, `bmi`, `blood_glucose_level`) makes apparent the difference in *scale* that these values have. From a numerical standpoint, measurements in `bmi` and `age` are significantly less than measurements in `blood_glucose_level`.
 
 Feature scaling ensures that all features contribute equally to the model's learning process. Numerically large features, when not scaled properly, may dominate learning over smaller-scale features; `blood_glucose_level` may, by virtue of the units it's measured in, overtake `HbA1c_level` in contribution because of the difference in their values.
@@ -265,8 +263,6 @@ for_baseline <- copy(raw_df)
 ```
 ### Train & Test Set Creation
 ```{r}
-# https://rpubs.com/SameerMathur/LR_GLM_CCDefault
-
 set.seed("123")
 
 # there are 60k rows so let's try 80-20
@@ -296,8 +292,6 @@ Without any resampling, the probability of an accurate prediction is 94.9%? That
 
 ### Confusion Matrix
 ```{r}
-# https://www.geeksforgeeks.org/confusion-matrix-in-r/
-
 baseline_confmatrix <- caret::confusionMatrix(
   as.factor(baseline_test_data$diabetes),
   as.factor(baseline_test_pred)
@@ -496,6 +490,23 @@ RUS_confmatrix
 NPV and PPV seem to be about the same as their ROS counterparts.
 
 # Results & Discussion
+```{r}
+methods <- c("None", "ROS", "RUS")
+accuracies <- c(94.9, 88.1, 88.2)
+ppvs <- c(98.7, 88.2, 88.4)
+npvs <- c(64.5, 87.5, 87.3)
+
+par(mfrow = c(1, 3))
+
+barplot(accuracies, names.arg = methods, col = "skyblue", ylim = c(0, 100),
+        main = "Accuracy", ylab = "Percentage")
+
+barplot(ppvs, names.arg = methods, col = "lightgreen", ylim = c(0, 100),
+        main = "PPV", ylab = "Percentage")
+
+barplot(npvs, names.arg = methods, col = "salmon", ylim = c(0, 100),
+        main = "NPV", ylab = "Percentage")
+```
 
 In this project a binary classification task was performed on a public health dataset containing a total of 9 features. A binary target `diabetes` was chosen to be the target of the binary classification task. Predictors consisted of 4 categorical and 4 continuous variables, all of which through EDA, were shown to be statistically significant with regards to the target variable (continuous attributes were not colinear, categorical attributes all yielded small p-values). The main challenge in performing this task was in accounting for the class imbalance of the target in the dataset, for every instance of the minority class there were about 8 of the majority class. The majority class consisted of non-diabetic observations.
 
@@ -506,3 +517,21 @@ The next two iterations of modeling applied either RUS or ROS to their training 
 This project was primarily inspired by the study done by [Deina et. al. (2024)](https://bmchealthservres.biomedcentral.com/articles/10.1186/s12913-023-10418-6). It's a paper that proposed a ML framework for data preparation and model training alongside introducing a novel resampling technique, Instance Hardness Threshold (IHT), and model,  Symbolic Regression (SR), to predict medical appointment no-shows. The paper compared performances of KNN, SVM, and SR models alongside different sampling techniques such as RUS, SMOTE, NearMiss - 1, and IHT. Through iterations of cross-validation they found that the combination of SR & IHT outperformed almost every other combination for most performance metrics.
 
 This project's methodology initially was to compare a suite of oversampling and undersampling techniques to the performance of a KNN model and a logistic regression model. However due to limitations in compute power, made apparent in an attempt to do SMOTE, the project was downsized to just a comparison of no-resampling, ROS, and RUS when paired with logistic regression. Despite this, the project still demonstrates the benefits of resampling especially when dealing with highly imbalanced datasets. Further iterations of this project may look into improving the EDA/feature engineering/feature extraction along with using more models.
+
+# References
+
+Excluding the dataset, the resources that were consulted in the making of this project are:
+
+https://bmchealthservres.biomedcentral.com/articles/10.1186/s12913-023-10418-6
+
+https://www.geeksforgeeks.org/confusion-matrix-in-r/
+
+https://rpubs.com/SameerMathur/LR_GLM_CCDefault
+
+https://www.youtube.com/watch?v=C4N3_XJJ-jU
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/
+
+https://www.cdc.gov/mmwr/volumes/72/wr/mm7210a7.htm
+
+https://www.geeksforgeeks.org/logistic-regression-and-the-feature-scaling-ensemble/
