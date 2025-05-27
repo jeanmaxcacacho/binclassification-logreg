@@ -10,7 +10,7 @@ The data used to perform this *report(?)* was obtained from an open-access Kaggl
 
 https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset
 
-The primary objective of this study is to perform a **binary classification task with logistic regression**, identifying diabetic from non-diabetic observations. Second to this would be examining the effect of two different resampling approaches: **(i) undersampling with Random Undersampling** and **(ii) oversampling with Synthetic Minority Oversampling**, to the performance of the model.
+The primary objective of this study is to perform a **binary classification task with logistic regression**, identifying diabetic from non-diabetic observations. Second to this would be examining the effect of two different resampling approaches: **(i) oversampling with Random Oversampling** and **(ii) undersampling with Random Undersampling**, to the performance of the model.
 
 # Data Pre-processing
 
@@ -238,7 +238,7 @@ All that being said, failure to reject the null hypothesis for any of the variab
 
 From EDA, through the use of correlation matrix and Chi-square tests, the final feature set was obtained. Continuous variables were not colinear with each other and all categorical variables yielded small p-values, as such all nine features from the base dataset is used in modeling.
 
-In this section logistic regression is run three times: (i) without resampling, (ii) resampling with SMOTE, and (iii) resampling with RUS. The target data distribution is heavily imbalanced, making the dataset a good candidate for analyzing performance contributions/effects of resampling techniques.
+In this section logistic regression is run three times: (i) without resampling, (ii) resampling with ROS, and (iii) resampling with RUS. The target data distribution is heavily imbalanced, making the dataset a good candidate for analyzing performance contributions/effects of resampling techniques.
 
 ## Scaling Continuous Attributes
 
@@ -315,61 +315,47 @@ PPV and NPV values make more apparent the *accuracy paradox*. The PPV being 98.7
 
 ## Logistic Regression with Resampling
 
-The previous subsection showed room for improvement with the NPV of the model. One of the main challenges in classification tasks is deciding how to handle class imbalances, one of the ways this is adressed is through resampling. Resampling, makes it so that the proportions in the training data is more balanced, giving the model more exposure to both targets.
+The previous subsection showed room for improvement with the NPV of the model. One of the main challenges in classification tasks is deciding how to handle class imbalances, one of the ways this is addressed is through resampling. Resampling, makes it so that the proportions in the training data is more balanced, giving the model more exposure to both targets.
 
-The resampling approaches used in this project are: **(i) Oversampling with SMOTE, and (ii) Undersampling with RUS**. 
+The resampling approaches used in this project are: **(i) Oversampling with ROS, and (ii) Undersampling with RUS**. 
 
-### Train & Test Set Creation for SMOTE
+### Train & Test Set Creation for ROS
 ```{r}
-for_SMOTE <- copy(raw_df)
+for_ROS <- copy(raw_df)
 
 set.seed("123")
 
-split_SMOTE <- caTools::sample.split(for_SMOTE$diabetes, SplitRatio = 0.8)
+split_ROS <- caTools::sample.split(for_ROS$diabetes, SplitRatio = 0.8)
 
-SMOTE_train_data <- subset(for_SMOTE, split_SMOTE == TRUE)
-SMOTE_test_data <- subset(for_SMOTE, split_SMOTE == FALSE)
+ROS_train_data <- subset(for_ROS, split_ROS == TRUE)
+ROS_test_data <- subset(for_ROS, split_ROS == FALSE)
 
-print(SMOTE_train_data)
+print(ROS_train_data)
 ```
-### SMOTE Resampling
+### ROS Resampling
 
-SMOTE works by synthetically generating more observations of the minority class. For each minority instance, it uses KNN to generate synthetic observations. The process stops when the desired class balance is achieved, usually this is 50:50. The class balance considered for the amount of new instances created per minority instance and majority instances kept is the distribution in the training data.
+ROS works by randomly duplicating rows of the minority class, adding these dupes up until both classes have roughly the same number of instances. As such, plotting the training data before and after resampling shows the effect of ROS on the observed class imbalance.
 
 ```{r}
-SMOTE_targcounts <- table(SMOTE_train_data$diabetes)
+ROS_targcounts <- table(ROS_train_data$diabetes)
 
 barplot(
-  SMOTE_targcounts,
+  ROS_targcounts,
   names.arg = c("Non-diabetic", "Diabetic"),
   col = "steelblue",
-  main = "Target Variable Distribution in SMOTE Train Set",
+  main = "Target Variable Distribution Before ROS",
   xlab = "Classification",
   ylab = "Observation Frequency")
 ```
 
 The distribution in the bar graph mirrors the one shown in EDA previously.
 ```{r}
-print(SMOTE_targcounts)
+print(ROS_targcounts)
 ```
 
 Getting an approximate ratio...
 ```{r}
-library(MASS)
 targ_ratio <- 45710 / 5637
 targ_ratio
 ```
-The ratio of majority to minority class is about 8:1. From this we can resample the train set accordingly. SMOTE implementation used in this project is from the `smotefamily` package.
-```{r}
-# separate features from label
-features <- names(SMOTE_train_data)[names(SMOTE_train_data) != "diabetes"]
-X <- SMOTE_train_data[, ..features]
-
-y <- SMOTE_train_data$diabetes
-
-# str(X)
-# str(y)
-SMOTEd <- smotefamily::SMOTE(X, y, K = 3, dup_size = 7)
-```
-
 ### Modeling with RUS
