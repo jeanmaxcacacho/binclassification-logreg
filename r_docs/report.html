@@ -663,7 +663,6 @@ X-squared = 253.13, df = 2, p-value &lt; 2.2e-16</code></pre>
 <p>In this section logistic regression is run three times: (i) without resampling, (ii) resampling with ROS, and (iii) resampling with RUS. The target data distribution is heavily imbalanced, making the dataset a good candidate for analyzing performance contributions/effects of resampling techniques.</p>
 <section id="scaling-continuous-attributes" class="level2">
 <h2 class="anchored" data-anchor-id="scaling-continuous-attributes">Scaling Continuous Attributes</h2>
-<p>https://www.geeksforgeeks.org/logistic-regression-and-the-feature-scaling-ensemble/</p>
 <p>An inspection of the data’s continuous attributes (e.g.&nbsp;<code>age</code>, <code>bmi</code>, <code>blood_glucose_level</code>) makes apparent the difference in <em>scale</em> that these values have. From a numerical standpoint, measurements in <code>bmi</code> and <code>age</code> are significantly less than measurements in <code>blood_glucose_level</code>.</p>
 <p>Feature scaling ensures that all features contribute equally to the model’s learning process. Numerically large features, when not scaled properly, may dominate learning over smaller-scale features; <code>blood_glucose_level</code> may, by virtue of the units it’s measured in, overtake <code>HbA1c_level</code> in contribution because of the difference in their values.</p>
 <p><code>scale</code> performs z-score scaling, centering values around 0.</p>
@@ -1193,7 +1192,28 @@ Prediction     0     1
 <section id="results-discussion" class="level1">
 <h1>Results &amp; Discussion</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show barplot ekekekek</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>methods <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"None"</span>, <span class="st">"ROS"</span>, <span class="st">"RUS"</span>)</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>accuracies <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">94.9</span>, <span class="fl">88.1</span>, <span class="fl">88.2</span>)</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>ppvs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">98.7</span>, <span class="fl">88.2</span>, <span class="fl">88.4</span>)</span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>npvs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">64.5</span>, <span class="fl">87.5</span>, <span class="fl">87.3</span>)</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>))</span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(accuracies, <span class="at">names.arg =</span> methods, <span class="at">col =</span> <span class="st">"skyblue"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>),</span>
+<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Accuracy"</span>, <span class="at">ylab =</span> <span class="st">"Percentage"</span>)</span>
+<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-11"><a href="#cb80-11" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(ppvs, <span class="at">names.arg =</span> methods, <span class="at">col =</span> <span class="st">"lightgreen"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>),</span>
+<span id="cb80-12"><a href="#cb80-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"PPV"</span>, <span class="at">ylab =</span> <span class="st">"Percentage"</span>)</span>
+<span id="cb80-13"><a href="#cb80-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-14"><a href="#cb80-14" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(npvs, <span class="at">names.arg =</span> methods, <span class="at">col =</span> <span class="st">"salmon"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>),</span>
+<span id="cb80-15"><a href="#cb80-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"NPV"</span>, <span class="at">ylab =</span> <span class="st">"Percentage"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="report_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
 </div>
 <p>In this project a binary classification task was performed on a public health dataset containing a total of 9 features. A binary target <code>diabetes</code> was chosen to be the target of the binary classification task. Predictors consisted of 4 categorical and 4 continuous variables, all of which through EDA, were shown to be statistically significant with regards to the target variable (continuous attributes were not colinear, categorical attributes all yielded small p-values). The main challenge in performing this task was in accounting for the class imbalance of the target in the dataset, for every instance of the minority class there were about 8 of the majority class. The majority class consisted of non-diabetic observations.</p>
 <p>Modeling was done through logistic regression, this was performed three times to see the effect of different resampling approaches: (i) no resampling, (ii) random oversampling, and (iii) random undersampling. The first iteration of modeling yielded the highest accuracy metric of 94.9%, for each prediction the model made on its test set the likelihood of it being correct was 94.9%. A deeper analysis of its performance however showed that while PPV is high, NPV was only 64.5%-the model fails to predict cases where an observation should be diabetic. Given the distribution of the target, if the model predicted non-diabetic for all observations, the accuracy would still be in the 90s.</p>
@@ -1203,13 +1223,14 @@ Prediction     0     1
 </section>
 <section id="references" class="level1">
 <h1>References</h1>
-<p>Excluding the dataset, here is a list of the resources that were consulted in the making of this project:</p>
+<p>Excluding the dataset, the resources that were consulted in the making of this project are:</p>
 <p>https://bmchealthservres.biomedcentral.com/articles/10.1186/s12913-023-10418-6</p>
 <p>https://www.geeksforgeeks.org/confusion-matrix-in-r/</p>
 <p>https://rpubs.com/SameerMathur/LR_GLM_CCDefault</p>
 <p>https://www.youtube.com/watch?v=C4N3_XJJ-jU</p>
-<p>https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/#:~:text=Transgender%20and%20gender%2Dexpansive%20(TGE)%20adults%E2%80%94individuals%20who%20have,to%20smoke%20cigarettes%20than%20cisgender%20individuals%20[3].</p>
+<p>https://pmc.ncbi.nlm.nih.gov/articles/PMC8529476/</p>
 <p>https://www.cdc.gov/mmwr/volumes/72/wr/mm7210a7.htm</p>
+<p>https://www.geeksforgeeks.org/logistic-regression-and-the-feature-scaling-ensemble/</p>
 </section>
 
 </main>
