@@ -358,4 +358,29 @@ Getting an approximate ratio...
 targ_ratio <- 45710 / 5637
 targ_ratio
 ```
+The majority class outnumbers the minority class by about 8 to 1. 
+```{r}
+ROS_output <- ROSE::ovun.sample(
+  diabetes ~ .,
+  data = ROS_train_data,
+  method = "over",
+  N = 2*max(table(ROS_train_data$diabetes))
+)
+
+ROS_train_data <- ROS_output$data
+ROS_train_data
+```
+
+The new target distribution is...
+```{r}
+ROS_targcounts2 <- table(ROS_train_data$diabetes)
+
+barplot(
+  ROS_targcounts2,
+  names.arg = c("Non-diabetic", "Diabetic"),
+  col = "steelblue",
+  main = "Target Variable Distribution After ROS",
+  xlab = "Classification",
+  ylab = "Observation Frequency")
+```
 ### Modeling with RUS
