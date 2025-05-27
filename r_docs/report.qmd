@@ -1,5 +1,5 @@
 ---
-title: "Supervised Classification of Diabetes Data"
+title: "Binary Classification With Logistic Regression"
 author: Jean Maximus C. Cacacho
 format: html
 ---
@@ -10,11 +10,11 @@ The data used to perform this *study* was obtained from an [open-access Kaggle d
 
 https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset
 
-The primary objective of this study is to perform a **binary classification task with logistic regression**, identifying diabetic from non-diabetic observations. Second to this would be examining the effect of two different resampling approaches: **(i) oversampling with Random Oversampling** and **(ii) undersampling with Random Undersampling**, to the performance of the model.
+The primary objective of this study is to perform a binary classification task with logistic regression, identifying diabetic from non-diabetic observations. Second to this would be examining the effect of two different resampling approaches: (i) oversampling with Random Oversampling and (ii) undersampling with Random Undersampling, to the performance of the model.
 
 # Data Pre-processing
 
-To yield a performant model, it's imperative for our input data to be clean. This involves pruning observations from the original data file, scaling values, and the appropriate value conversions, among other appropriate steps that may arise.
+To yield a performant model, it's imperative for our input data to be clean. This involves pruning observations from the original data file, scaling values, and the appropriate type conversions, among other appropriate steps that may arise.
 
 On a high level, what is done in this subsection are the following:
 
@@ -516,7 +516,7 @@ The next two iterations of modeling applied either RUS or ROS to their training 
 
 This project was primarily inspired by the study done by [Deina et. al. (2024)](https://bmchealthservres.biomedcentral.com/articles/10.1186/s12913-023-10418-6). It's a paper that proposed a ML framework for data preparation and model training alongside introducing a novel resampling technique, Instance Hardness Threshold (IHT), and model,  Symbolic Regression (SR), to predict medical appointment no-shows. The paper compared performances of KNN, SVM, and SR models alongside different sampling techniques such as RUS, SMOTE, NearMiss - 1, and IHT. Through iterations of cross-validation they found that the combination of SR & IHT outperformed almost every other combination for most performance metrics.
 
-This project's methodology initially was to compare a suite of oversampling and undersampling techniques to the performance of a KNN model and a logistic regression model. However due to limitations in compute power, made apparent in an attempt to do SMOTE, the project was downsized to just a comparison of no-resampling, ROS, and RUS when paired with logistic regression. Despite this, the project still demonstrates the benefits of resampling especially when dealing with highly imbalanced datasets. Further iterations of this project may look into improving the EDA/feature engineering/feature extraction along with using more models and resampling techniques.
+This project's methodology initially was to compare a suite of oversampling and undersampling techniques to the performance of a KNN model and a logistic regression model. However due to limitations in compute power, made apparent in an attempt to do SMOTE, the project was downsized to just a comparison of no-resampling, ROS, and RUS when paired with logistic regression. Despite this, the project still demonstrates the benefits of resampling especially when dealing with highly imbalanced datasets. Further iterations of this project may look into improving the EDA/feature engineering/feature extraction along with using more models and resampling techniques. A deeper dive into each model's parameters and hyperparameters should also be looked at and examined how they fare side by side other changes.
 
 # References
 
