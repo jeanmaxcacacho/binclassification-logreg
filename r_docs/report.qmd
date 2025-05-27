@@ -383,4 +383,47 @@ barplot(
   xlab = "Classification",
   ylab = "Observation Frequency")
 ```
-### Modeling with RUS
+### Model Training on ROS Data
+```{r}
+ROS_model <- glm(diabetes ~ .,
+                      data = ROS_train_data,
+                      family = binomial)
+summary(ROS_model)
+```
+
+### Making Predictions on `ROS_test_data`
+```{r}
+ROS_test_probs <- predict(ROS_model,
+                          newdata = ROS_test_data,
+                          type = "response")
+ROS_test_pred <- ifelse(ROS_test_probs > 0.5, 1, 0)
+
+# report accuracy
+mean(ROS_test_pred == ROS_test_data$diabetes)
+```
+So from a very comfortable A, accuracy has dropped to an almost borderline B+. Have the other performance metrics improved?
+
+### ROS Model Confusion Matrix
+```{r}
+ROS_confmatrix <- caret::confusionMatrix(
+  as.factor(ROS_test_data$diabetes),
+  as.factor(ROS_test_pred)
+)
+
+print(ROS_confmatrix)
+```
+As expected, there is an increase in the value of NPV. Now that the training data has been resampled appropriately to make diabetic and non-diabetic instances as frequent, the model's increased exposure to diabetic data, despite *just being duplicates*, affects the learning process of the model. **Is this the best way to train the model though?**
+
+### Train & Test Set Creation for RUS
+```{r}
+for_ROS <- copy(raw_df)
+
+set.seed("123")
+
+split_ROS <- caTools::sample.split(for_ROS$diabetes, SplitRatio = 0.8)
+
+ROS_train_data <- subset(for_ROS, split_ROS == TRUE)
+ROS_test_data <- subset(for_ROS, split_ROS == FALSE)
+
+print(ROS_train_data)
+```
