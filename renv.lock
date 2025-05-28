@@ -659,7 +659,7 @@
     },
     "data.table": {
       "Package": "data.table",
-      "Version": "1.17.2",
+      "Version": "1.17.4",
       "Source": "Repository",
       "Title": "Extension of `data.frame`",
       "Depends": [
